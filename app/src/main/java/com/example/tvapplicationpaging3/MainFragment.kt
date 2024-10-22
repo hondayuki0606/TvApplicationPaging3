@@ -30,10 +30,15 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
+import com.example.tvapplicationpaging3.paging.CheeseAdapter
+import com.example.tvapplicationpaging3.paging.CheeseViewModel
+import com.example.tvapplicationpaging3.paging.CheeseViewModelFactory
+import kotlinx.coroutines.launch
 
 /**
  * Loads a grid of cards with movies to browse.
@@ -46,7 +51,7 @@ class MainFragment : BrowseSupportFragment() {
     private lateinit var mMetrics: DisplayMetrics
     private var mBackgroundTimer: Timer? = null
     private var mBackgroundUri: String? = null
-
+//    private val viewModel by viewModels<CheeseViewModel> { CheeseViewModelFactory(application) }
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.i(TAG, "onCreate")
         super.onActivityCreated(savedInstanceState)
@@ -113,7 +118,14 @@ class MainFragment : BrowseSupportFragment() {
         gridRowAdapter.add(getString(R.string.error_fragment))
         gridRowAdapter.add(resources.getString(R.string.personal_settings))
         rowsAdapter.add(ListRow(gridHeader, gridRowAdapter))
+        val cheeseAdapter = CheeseAdapter()
 
+        // Subscribe the adapter to the ViewModel, so the items in the adapter are refreshed
+        // when the list changes
+//        lifecycleScope.launch {
+//            viewModel.allCheeses.collectLatest { adapter.submitData(it) }
+//        }
+//        adapter = CheeseAdapter()
         adapter = rowsAdapter
     }
 
