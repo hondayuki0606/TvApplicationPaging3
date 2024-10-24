@@ -30,7 +30,9 @@ import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.leanback.paging.PagingDataAdapter
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DiffUtil
 
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
@@ -93,39 +95,29 @@ class MainFragment : BrowseSupportFragment() {
     }
 
     private fun loadRows() {
-        val list = MovieList.list
-
         val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
         val cardPresenter = CardPresenter()
+        val movieAdapter: PagingDataAdapter<Movie> = PagingDataAdapter(cardPresenter,
+            object : DiffUtil.ItemCallback<Movie>() {
+                override fun areItemsTheSame(
+                    oldItem: Movie,
+                    newItem: Movie
+                ): Boolean {
+                    return oldItem.id === newItem.id
+                }
 
-        for (i in 0 until NUM_ROWS) {
-            if (i != 0) {
-                Collections.shuffle(list)
-            }
-            val listRowAdapter = ArrayObjectAdapter(cardPresenter)
-            for (j in 0 until NUM_COLS) {
-                listRowAdapter.add(list[j % 5])
-            }
-            val header = HeaderItem(i.toLong(), MovieList.MOVIE_CATEGORY[i])
-            rowsAdapter.add(ListRow(header, listRowAdapter))
+                override fun areContentsTheSame(
+                    oldItem: Movie,
+                    newItem: Movie
+                ): Boolean {
+                    return oldItem == newItem
+                }
+            })
+        val header = HeaderItem(0, "MovieList.MOVIE_CATEGORY[i]")
+        rowsAdapter.add(ListRow(header, movieAdapter))
+        lifecycleScope.launch {
+            // movieAdapter.submitData()
         }
-
-        val gridHeader = HeaderItem(NUM_ROWS.toLong(), "PREFERENCES")
-
-        val mGridPresenter = GridItemPresenter()
-        val gridRowAdapter = ArrayObjectAdapter(mGridPresenter)
-        gridRowAdapter.add(resources.getString(R.string.grid_view))
-        gridRowAdapter.add(getString(R.string.error_fragment))
-        gridRowAdapter.add(resources.getString(R.string.personal_settings))
-        rowsAdapter.add(ListRow(gridHeader, gridRowAdapter))
-        val cheeseAdapter = CheeseAdapter()
-
-        // Subscribe the adapter to the ViewModel, so the items in the adapter are refreshed
-        // when the list changes
-//        lifecycleScope.launch {
-//            viewModel.allCheeses.collectLatest { adapter.submitData(it) }
-//        }
-//        adapter = CheeseAdapter()
         adapter = rowsAdapter
     }
 
