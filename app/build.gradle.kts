@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsKotlinAndroid)
+//    alias(libs.plugins.jetbrainsKotlinAndroid)
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -26,24 +29,23 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
 }
 
 dependencies {
     implementation("androidx.cardview:cardview:1.0.0")
 
-    val room_version = "2.5.0"
+    val room_version = "2.5.2"
 
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
 
     // To use Kotlin Symbol Processing (KSP)
-//    ksp("androidx.room:room-compiler:$room_version")
     implementation("androidx.leanback:leanback-paging:1.1.0-alpha11")
     // optional - Kotlin Extensions and Coroutines support for Room
     implementation("androidx.room:room-ktx:$room_version")
@@ -63,23 +65,18 @@ dependencies {
     // optional - Paging 3 Integration
     implementation("androidx.room:room-paging:$room_version")
 
-    val paging_version = "3.3.2"
+    // Use Dagger Hilt
+    implementation("com.google.dagger:hilt-android:2.49")
+    ksp("com.google.dagger:hilt-android-compiler:2.48")
+    annotationProcessor("androidx.hilt:hilt-compiler:1.2.0")
 
-//    implementation("androidx.paging:paging-runtime-ktx:$paging_version")
-//
-//    // alternatively - without Android dependencies for tests
-//    testImplementation("androidx.paging:paging-common-ktx:$paging_version")
-//
-//    // optional - RxJava2 support
-//    implementation("androidx.paging:paging-rxjava2-ktx:$paging_version")
-//
-//    // optional - RxJava3 support
-//    implementation("androidx.paging:paging-rxjava3:$paging_version")
-//
-//    // optional - Guava ListenableFuture support
-//    implementation("androidx.paging:paging-guava:$paging_version")
+    testImplementation("com.google.dagger:hilt-android-testing:2.48")
+    kspTest("com.google.dagger:hilt-android-compiler:2.48")
+    testAnnotationProcessor("com.google.dagger:hilt-android-compiler:2.48")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.48")
+    kspAndroidTest("com.google.dagger:hilt-android-compiler:2.48")
 
-
+    implementation("androidx.fragment:fragment-ktx:1.3.2")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.leanback)
     implementation(libs.glide)
