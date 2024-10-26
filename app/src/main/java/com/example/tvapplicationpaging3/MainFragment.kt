@@ -1,6 +1,5 @@
 package com.example.tvapplicationpaging3
 
-import java.util.Collections
 import java.util.Timer
 import java.util.TimerTask
 
@@ -27,9 +26,11 @@ import androidx.core.content.ContextCompat
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.viewModels
 import androidx.leanback.paging.PagingDataAdapter
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
@@ -37,14 +38,15 @@ import androidx.recyclerview.widget.DiffUtil
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
-import com.example.tvapplicationpaging3.paging.CheeseAdapter
-import com.example.tvapplicationpaging3.paging.CheeseViewModel
-import com.example.tvapplicationpaging3.paging.CheeseViewModelFactory
+import com.example.tvapplicationpaging3.paging.PagingSourceViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
  * Loads a grid of cards with movies to browse.
  */
+@AndroidEntryPoint
 class MainFragment : BrowseSupportFragment() {
 
     private val mHandler = Handler(Looper.myLooper()!!)
@@ -53,7 +55,8 @@ class MainFragment : BrowseSupportFragment() {
     private lateinit var mMetrics: DisplayMetrics
     private var mBackgroundTimer: Timer? = null
     private var mBackgroundUri: String? = null
-//    private val viewModel by viewModels<CheeseViewModel> { CheeseViewModelFactory(application) }
+    private val viewModel: PagingSourceViewModel by viewModels()
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.i(TAG, "onCreate")
         super.onActivityCreated(savedInstanceState)
@@ -61,12 +64,14 @@ class MainFragment : BrowseSupportFragment() {
         prepareBackgroundManager()
 
         setupUIElements()
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         loadRows()
 
         setupEventListeners()
     }
-
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy: " + mBackgroundTimer?.toString())
@@ -76,10 +81,10 @@ class MainFragment : BrowseSupportFragment() {
     private fun prepareBackgroundManager() {
 
         mBackgroundManager = BackgroundManager.getInstance(activity)
-        mBackgroundManager.attach(activity!!.window)
-        mDefaultBackground = ContextCompat.getDrawable(context!!, R.drawable.default_background)
+        mBackgroundManager.attach(requireActivity().window)
+        mDefaultBackground = ContextCompat.getDrawable(requireContext(), R.drawable.default_background)
         mMetrics = DisplayMetrics()
-        activity!!.windowManager.defaultDisplay.getMetrics(mMetrics)
+        requireActivity().windowManager.defaultDisplay.getMetrics(mMetrics)
     }
 
     private fun setupUIElements() {
@@ -89,9 +94,9 @@ class MainFragment : BrowseSupportFragment() {
         isHeadersTransitionOnBackEnabled = true
 
         // set fastLane (or headers) background color
-        brandColor = ContextCompat.getColor(context!!, R.color.fastlane_background)
+        brandColor = ContextCompat.getColor(requireContext(), R.color.fastlane_background)
         // set search icon color
-        searchAffordanceColor = ContextCompat.getColor(context!!, R.color.search_opaque)
+        searchAffordanceColor = ContextCompat.getColor(requireContext(), R.color.search_opaque)
     }
 
     private fun loadRows() {
@@ -116,14 +121,16 @@ class MainFragment : BrowseSupportFragment() {
         val header = HeaderItem(0, "MovieList.MOVIE_CATEGORY[i]")
         rowsAdapter.add(ListRow(header, movieAdapter))
         lifecycleScope.launch {
-            // movieAdapter.submitData()
+            viewModel.getMoviesAsFlow().collectLatest {
+                movieAdapter.submitData(it)
+            }
         }
         adapter = rowsAdapter
     }
 
     private fun setupEventListeners() {
         setOnSearchClickedListener {
-            Toast.makeText(context!!, "Implement your own in-app search", Toast.LENGTH_LONG)
+            Toast.makeText(requireContext(), "Implement your own in-app search", Toast.LENGTH_LONG)
                 .show()
         }
 
@@ -177,7 +184,7 @@ class MainFragment : BrowseSupportFragment() {
     private fun updateBackground(uri: String?) {
         val width = mMetrics.widthPixels
         val height = mMetrics.heightPixels
-        Glide.with(context!!)
+        Glide.with(requireContext())
             .load(uri)
             .centerCrop()
             .error(mDefaultBackground)
