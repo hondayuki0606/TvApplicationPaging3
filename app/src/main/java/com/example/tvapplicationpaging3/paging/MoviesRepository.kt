@@ -13,7 +13,7 @@ class MoviesRepository @Inject constructor(
         Pager(
             config = PagingConfig(
                 pageSize = 20,
-                prefetchDistance = 80,
+                prefetchDistance = 1,
                 enablePlaceholders = false,
             ),
             pagingSourceFactory = {

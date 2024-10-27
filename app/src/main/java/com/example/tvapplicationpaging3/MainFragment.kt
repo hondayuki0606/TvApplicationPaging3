@@ -72,6 +72,7 @@ class MainFragment : BrowseSupportFragment() {
 
         setupEventListeners()
     }
+
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy: " + mBackgroundTimer?.toString())
@@ -82,7 +83,8 @@ class MainFragment : BrowseSupportFragment() {
 
         mBackgroundManager = BackgroundManager.getInstance(activity)
         mBackgroundManager.attach(requireActivity().window)
-        mDefaultBackground = ContextCompat.getDrawable(requireContext(), R.drawable.default_background)
+        mDefaultBackground =
+            ContextCompat.getDrawable(requireContext(), R.drawable.default_background)
         mMetrics = DisplayMetrics()
         requireActivity().windowManager.defaultDisplay.getMetrics(mMetrics)
     }
@@ -124,6 +126,11 @@ class MainFragment : BrowseSupportFragment() {
             viewModel.getMoviesAsFlow().collectLatest {
                 movieAdapter.submitData(it)
             }
+        }
+        movieAdapter.addLoadStateListener {
+            val size = movieAdapter.size()
+//            val movi = movieAdapter.get(0)
+            val test = ""
         }
         adapter = rowsAdapter
     }
@@ -174,6 +181,8 @@ class MainFragment : BrowseSupportFragment() {
             itemViewHolder: Presenter.ViewHolder?, item: Any?,
             rowViewHolder: RowPresenter.ViewHolder, row: Row
         ) {
+            val adapter = (adapter as ArrayObjectAdapter)[0]
+
             if (item is Movie) {
                 mBackgroundUri = item.backgroundImageUrl
                 startBackgroundTimer()
