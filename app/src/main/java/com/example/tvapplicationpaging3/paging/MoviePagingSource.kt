@@ -6,26 +6,15 @@ import com.example.tvapplicationpaging3.Movie
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+@Suppress("UNREACHABLE_CODE")
 class MoviePagingSource(
-    private val titleList: ArrayList<String> = arrayListOf(
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10"
-    )
+    private val titleList: Array<Int>,
+    private val startPosition: Int,
+    private val initPosition: Int,
+    private val pageSize: Int,
 ) : PagingSource<Int, Movie>() {
     // APIのpage指定の最小値
-    private val INIT_INDEX = 0
-
-    // APIの1チャンクあたりの取得データ数
-    private val PAGE_SIZE = 5
-
+    private val INIT_INDEX = -1
     override fun getRefreshKey(state: PagingState<Int, Movie>): Int? {
         val position = state.anchorPosition ?: return null
         val prevKey = state.closestPageToPosition(position)?.prevKey
@@ -40,10 +29,18 @@ class MoviePagingSource(
         return try {
             withContext(Dispatchers.IO) {
                 val movieList = mutableListOf<Movie>()
-                if (position == INIT_INDEX) {
-                    val start = position * PAGE_SIZE
-                    for (i in start until start + PAGE_SIZE)
-                        if (i <= titleList.size) {
+                val start = if (position == initPosition) {
+                    startPosition
+                } else {
+                    if (position < initPosition) {
+                        startPosition - ((initPosition - position) * pageSize)
+                    } else {
+                        startPosition + ((position - initPosition) * pageSize)
+                    }
+                }
+                if (0 > start) {
+                    for (i in start until start + pageSize) {
+                        if (i >= 0) {
                             movieList.add(
                                 Movie(
                                     title = "test$i",
@@ -53,18 +50,10 @@ class MoviePagingSource(
                                 )
                             )
                         }
-                } else {
-                    var start = 0
-                    if (position == INIT_INDEX) {
-                        start = INIT_INDEX
-                    } else if (INIT_INDEX < position) {
-                        start = INIT_INDEX + (position * PAGE_SIZE)
                     }
-//                    else if (position < INIT_INDEX) {
-//                        100
-//                    }
-                    for (i in start until start + PAGE_SIZE) {
-                        if (i <= titleList.size) {
+                } else {
+                    for (i in start until start + pageSize) {
+                        if (i < titleList.size) {
                             movieList.add(
                                 Movie(
                                     title = "test$i",
@@ -76,13 +65,28 @@ class MoviePagingSource(
                         }
                     }
                 }
-                val prevKey = if (position == 0) null else position - 1
-                val nextKey = if (movieList.isNullOrEmpty()) null else position + 1
+
+                val prevKey = if (position == 0) {
+                    null
+                } else {
+                    position - 1
+                }
+                val nextKey =
+                    if (movieList.isNullOrEmpty() || start + pageSize > titleList.size) {
+                        null
+                    } else {
+                        position + 1
+                    }
                 return@withContext LoadResult.Page(
                     data = movieList ?: listOf(),
                     prevKey = prevKey,
                     nextKey = nextKey
                 )
+//            return LoadResult.Page(
+//                data = movieList ?: listOf(),
+//                prevKey = prevKey,
+//                nextKey = nextKey
+//            )
             }
         } catch (e: Exception) {
             return LoadResult.Error(e)

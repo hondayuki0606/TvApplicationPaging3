@@ -1,7 +1,6 @@
 package com.example.tvapplicationpaging3
 
-import java.util.Timer
-import java.util.TimerTask
+//import com.example.tvapplicationpaging3.MovieList.list
 
 import android.content.Intent
 import android.graphics.Color
@@ -9,8 +8,19 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.DisplayMetrics
+import android.util.Log
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import android.widget.Toast
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.viewModels
 import androidx.leanback.app.BackgroundManager
 import androidx.leanback.app.BrowseSupportFragment
+import androidx.leanback.paging.PagingDataAdapter
 import androidx.leanback.widget.ArrayObjectAdapter
 import androidx.leanback.widget.HeaderItem
 import androidx.leanback.widget.ImageCardView
@@ -21,27 +31,23 @@ import androidx.leanback.widget.OnItemViewSelectedListener
 import androidx.leanback.widget.Presenter
 import androidx.leanback.widget.Row
 import androidx.leanback.widget.RowPresenter
-import androidx.core.app.ActivityOptionsCompat
-import androidx.core.content.ContextCompat
-import android.util.DisplayMetrics
-import android.util.Log
-import android.view.Gravity
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
-import androidx.fragment.app.viewModels
-import androidx.leanback.paging.PagingDataAdapter
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.DiffUtil
-
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.tvapplicationpaging3.paging.PagingSourceViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.Timer
+import java.util.TimerTask
+import javax.annotation.Nonnull
+
 
 /**
  * Loads a grid of cards with movies to browse.
@@ -110,7 +116,7 @@ class MainFragment : BrowseSupportFragment() {
                     oldItem: Movie,
                     newItem: Movie
                 ): Boolean {
-                    return oldItem.id === newItem.id
+                    return oldItem.id == newItem.id
                 }
 
                 override fun areContentsTheSame(
@@ -123,15 +129,33 @@ class MainFragment : BrowseSupportFragment() {
         val header = HeaderItem(0, "MovieList.MOVIE_CATEGORY[i]")
         rowsAdapter.add(ListRow(header, movieAdapter))
         lifecycleScope.launch {
-            viewModel.getMoviesAsFlow().collectLatest {
-                movieAdapter.submitData(it)
+            viewModel.getMoviesAsFlow().collectLatest { value ->
+                movieAdapter.submitData(value)
             }
+//            movieAdapter.loadStateFlow.collect { loadState ->
+//                val isListEmpty =
+//                    loadState.refresh is LoadState.NotLoading && movieAdapter.size() == 0
+////                // show empty list
+////                emptyList.isVisible = isListEmpty
+////                // Only show the list if refresh succeeds.
+////                list.isVisible = !isListEmpty
+//            }
         }
-        movieAdapter.addLoadStateListener {
-            val size = movieAdapter.size()
-//            val movi = movieAdapter.get(0)
-            val test = ""
-        }
+
+//        movieAdapter.addLoadStateListener { combinedLoadStates ->
+//            if (combinedLoadStates.refresh !is LoadState.NotLoading) {
+////                return Unit // this is the void equivalent in kotlin
+//            }
+////            val size = movieAdapter.size()
+////            val source = combinedLoadStates.source
+////            val append = combinedLoadStates.append
+////            val refresh = combinedLoadStates.refresh
+////            Log.d("test", "size = $size")
+////            Log.d("test", "source = $source")
+////            Log.d("test", "append = $append")
+////            Log.d("test", "refresh = $refresh")
+//            Log.d("test", "combinedLoadStates.refresh = ${combinedLoadStates.refresh}")
+//        }
         adapter = rowsAdapter
     }
 
