@@ -3,6 +3,7 @@ package com.example.tvapplicationpaging3.paging
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import com.example.tvapplicationpaging3.Movie
 
 /**
  * A simple PagedListAdapter that binds Cheese items into CardViews.
@@ -18,13 +19,13 @@ import androidx.recyclerview.widget.DiffUtil
  * @see androidx.paging.PagedListAdapter
  * @see androidx.paging.AsyncPagedListDiffer
  */
-class CheeseAdapter : PagingDataAdapter<CheeseListItem, CheeseViewHolder>(diffCallback) {
-    override fun onBindViewHolder(holder: CheeseViewHolder, position: Int) {
+class MovieAdapter : PagingDataAdapter<Movie, MovieViewHolder>(diffCallback) {
+    override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
         holder.bindTo(getItem(position))
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CheeseViewHolder {
-        return CheeseViewHolder(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
+        return MovieViewHolder(parent)
     }
 
     companion object {
@@ -38,12 +39,10 @@ class CheeseAdapter : PagingDataAdapter<CheeseListItem, CheeseViewHolder>(diffCa
          *
          * @see DiffUtil
          */
-        val diffCallback = object : DiffUtil.ItemCallback<CheeseListItem>() {
-            override fun areItemsTheSame(oldItem: CheeseListItem, newItem: CheeseListItem): Boolean {
-                return if (oldItem is CheeseListItem.Item && newItem is CheeseListItem.Item) {
-                    oldItem.cheese.id == newItem.cheese.id
-                } else if (oldItem is CheeseListItem.Separator && newItem is CheeseListItem.Separator) {
-                    oldItem.name == newItem.name
+        val diffCallback = object : DiffUtil.ItemCallback<Movie>() {
+            override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean {
+                return if (oldItem is Movie && newItem is Movie) {
+                    oldItem.id == newItem.id
                 } else {
                     oldItem == newItem
                 }
@@ -53,7 +52,7 @@ class CheeseAdapter : PagingDataAdapter<CheeseListItem, CheeseViewHolder>(diffCa
              * Note that in kotlin, == checking on data classes compares all contents, but in Java,
              * typically you'll implement Object#equals, and use it to compare object contents.
              */
-            override fun areContentsTheSame(oldItem: CheeseListItem, newItem: CheeseListItem): Boolean {
+            override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
                 return oldItem == newItem
             }
         }

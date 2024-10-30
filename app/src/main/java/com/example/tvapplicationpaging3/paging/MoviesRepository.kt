@@ -7,10 +7,10 @@ import javax.inject.Inject
 import kotlin.math.ceil
 
 class MoviesRepository @Inject constructor() {
-    val intList = Array(3) { it }
+    val intList = Array(10) { it }
 
     // DBをつかわないバージョン
-    fun getMovies(startPosition: Int = 1): Pager<Int, Movie> =
+    fun getMovies(startPosition: Int = 0): Pager<Int, Movie> =
         Pager(
             config = PagingConfig(
                 pageSize = 1,

@@ -77,6 +77,8 @@ dependencies {
     kspAndroidTest("com.google.dagger:hilt-android-compiler:2.48")
 
     implementation("androidx.fragment:fragment-ktx:1.5.2")
+
+    implementation("androidx.constraintlayout:constraintlayout:2.2.0-beta01")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.leanback)
     implementation(libs.glide)

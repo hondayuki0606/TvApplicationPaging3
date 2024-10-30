@@ -6,7 +6,6 @@ import com.example.tvapplicationpaging3.Movie
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-@Suppress("UNREACHABLE_CODE")
 class MoviePagingSource(
     private val titleList: Array<Int>,
     private val startPosition: Int,
@@ -38,31 +37,16 @@ class MoviePagingSource(
                         startPosition + ((position - initPosition) * pageSize)
                     }
                 }
-                if (0 > start) {
-                    for (i in start until start + pageSize) {
-                        if (i >= 0) {
-                            movieList.add(
-                                Movie(
-                                    title = "test$i",
-                                    description = "description",
-                                    cardImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png",
-                                    backgroundImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png"
-                                )
+                for (i in start until start + pageSize) {
+                    if (0 <= start && i < titleList.size) {
+                        movieList.add(
+                            Movie(
+                                title = "test$i",
+                                description = "description",
+                                cardImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png",
+                                backgroundImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png"
                             )
-                        }
-                    }
-                } else {
-                    for (i in start until start + pageSize) {
-                        if (i < titleList.size) {
-                            movieList.add(
-                                Movie(
-                                    title = "test$i",
-                                    description = "description",
-                                    cardImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png",
-                                    backgroundImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png"
-                                )
-                            )
-                        }
+                        )
                     }
                 }
 
@@ -78,15 +62,10 @@ class MoviePagingSource(
                         position + 1
                     }
                 return@withContext LoadResult.Page(
-                    data = movieList ?: listOf(),
+                    data = movieList,
                     prevKey = prevKey,
                     nextKey = nextKey
                 )
-//            return LoadResult.Page(
-//                data = movieList ?: listOf(),
-//                prevKey = prevKey,
-//                nextKey = nextKey
-//            )
             }
         } catch (e: Exception) {
             return LoadResult.Error(e)

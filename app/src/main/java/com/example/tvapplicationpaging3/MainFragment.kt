@@ -142,20 +142,20 @@ class MainFragment : BrowseSupportFragment() {
 //            }
         }
 
-//        movieAdapter.addLoadStateListener { combinedLoadStates ->
-//            if (combinedLoadStates.refresh !is LoadState.NotLoading) {
-////                return Unit // this is the void equivalent in kotlin
-//            }
-////            val size = movieAdapter.size()
-////            val source = combinedLoadStates.source
-////            val append = combinedLoadStates.append
-////            val refresh = combinedLoadStates.refresh
-////            Log.d("test", "size = $size")
-////            Log.d("test", "source = $source")
-////            Log.d("test", "append = $append")
-////            Log.d("test", "refresh = $refresh")
-//            Log.d("test", "combinedLoadStates.refresh = ${combinedLoadStates.refresh}")
-//        }
+        movieAdapter.addLoadStateListener { combinedLoadStates ->
+            if (combinedLoadStates.refresh !is LoadState.NotLoading) {
+//                return Unit // this is the void equivalent in kotlin
+            }
+//            val size = movieAdapter.size()
+//            val source = combinedLoadStates.source
+//            val append = combinedLoadStates.append
+//            val refresh = combinedLoadStates.refresh
+//            Log.d("test", "size = $size")
+//            Log.d("test", "source = $source")
+//            Log.d("test", "append = $append")
+//            Log.d("test", "refresh = $refresh")
+            Log.d("test", "combinedLoadStates.refresh = ${combinedLoadStates.refresh}")
+        }
         adapter = rowsAdapter
     }
 
