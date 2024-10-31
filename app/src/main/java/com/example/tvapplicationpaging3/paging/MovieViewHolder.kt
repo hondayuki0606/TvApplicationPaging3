@@ -30,6 +30,9 @@ class MovieViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
                 imageView.setImageResource(R.drawable.movie)
             }
         }
+        if (item?.title == "test999") {
+            itemView.requestFocus()
+        }
         imageView.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 imageView.setImageResource(R.drawable.app_icon_your_company)

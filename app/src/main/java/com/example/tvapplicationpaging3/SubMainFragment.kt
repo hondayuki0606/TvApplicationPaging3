@@ -31,16 +31,11 @@ class SubMainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
-        val movieAdapter = MovieAdapter()
+        recyclerView.adapter = MovieAdapter()
         lifecycleScope.launch {
             viewModel.getMoviesAsFlow().collectLatest { value ->
-                movieAdapter.submitData(value)
+                (recyclerView.adapter as MovieAdapter).submitData(value)
             }
         }
-
-        recyclerView.adapter = movieAdapter
-        recyclerView.isSelected = true
-        recyclerView.isFocusable = true
-        recyclerView.scrollToPosition(5)
     }
 }

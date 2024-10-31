@@ -7,10 +7,10 @@ import javax.inject.Inject
 import kotlin.math.ceil
 
 class MoviesRepository @Inject constructor() {
-    val intList = Array(10) { it }
+    private val intList = Array(1000) { it }
 
     // DBをつかわないバージョン
-    fun getMovies(startPosition: Int = 0): Pager<Int, Movie> =
+    fun getMovies(startPosition: Int = 999): Pager<Int, Movie> =
         Pager(
             config = PagingConfig(
                 pageSize = 1,
@@ -28,7 +28,6 @@ class MoviesRepository @Inject constructor() {
             },
         )
 
-    private val PAGE_SIZE = 1.0
     private fun makeInitKey(startPosition: Int): Int {
         var initKey = 0.0
         if (0 == startPosition) {
@@ -38,5 +37,8 @@ class MoviesRepository @Inject constructor() {
             initKey = ceil(ret)
         }
         return initKey.toInt()
+    }
+    companion object{
+        private const val PAGE_SIZE = 1.0
     }
 }
