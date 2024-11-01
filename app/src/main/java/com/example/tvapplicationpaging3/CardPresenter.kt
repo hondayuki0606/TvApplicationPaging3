@@ -6,8 +6,11 @@ import androidx.leanback.widget.Presenter
 import androidx.core.content.ContextCompat
 import android.util.Log
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import kotlin.properties.Delegates
 
 /**
@@ -39,7 +42,8 @@ class CardPresenter : Presenter() {
         updateCardBackgroundColor(cardView, false)
         return Presenter.ViewHolder(cardView)
     }
-
+    val _myValue = MutableLiveData<Movie>()
+    val myValue: MutableLiveData<Movie> get() = _myValue
     override fun onBindViewHolder(viewHolder: Presenter.ViewHolder, item: Any) {
         val movie = item as Movie
         val cardView = viewHolder.view as ImageCardView
@@ -50,13 +54,17 @@ class CardPresenter : Presenter() {
             cardView.contentText = movie.studio
             cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
             Glide.with(viewHolder.view.context)
-                .load(movie.cardImageUrl)
+                .load(movie.imageId)
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .centerCrop()
                 .error(mDefaultCardImage)
                 .into(cardView.mainImageView)
         }
     }
-
+    fun updateValue(newValue: Movie) {
+        _myValue.value = newValue
+    }
     override fun onUnbindViewHolder(viewHolder: Presenter.ViewHolder) {
         Log.d(TAG, "onUnbindViewHolder")
         val cardView = viewHolder.view as ImageCardView
@@ -79,4 +87,15 @@ class CardPresenter : Presenter() {
         private val CARD_WIDTH = 313
         private val CARD_HEIGHT = 176
     }
+}
+
+class ObservableProperty<T>(private var _value: T) {
+    var value: T
+        get() = _value
+        set(newValue) {
+            if (_value != newValue) {
+                _value = newValue
+                println("Value changed to: $newValue")
+            }
+        }
 }

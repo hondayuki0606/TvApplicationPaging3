@@ -16,7 +16,7 @@ class MainActivity : FragmentActivity() {
         setContentView(R.layout.activity_main)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.main_browse_fragment, SubMainFragment())
+                .replace(R.id.main_browse_fragment, MainFragment())
                 .commitNow()
         }
     }
