@@ -1,14 +1,13 @@
 package com.example.tvapplicationpaging3
 
 import android.graphics.drawable.Drawable
-import androidx.leanback.widget.ImageCardView
-import androidx.leanback.widget.Presenter
-import androidx.core.content.ContextCompat
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.ViewGroup
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-
+import androidx.core.content.ContextCompat
+import androidx.leanback.widget.ImageCardView
+import androidx.leanback.widget.Presenter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import kotlin.properties.Delegates
@@ -42,12 +41,34 @@ class CardPresenter : Presenter() {
         updateCardBackgroundColor(cardView, false)
         return Presenter.ViewHolder(cardView)
     }
-    val _myValue = MutableLiveData<Movie>()
-    val myValue: MutableLiveData<Movie> get() = _myValue
+
     override fun onBindViewHolder(viewHolder: Presenter.ViewHolder, item: Any) {
         val movie = item as Movie
         val cardView = viewHolder.view as ImageCardView
 
+        movie.listener = object : Listener {
+            override fun complete() {
+                val handler = Handler(Looper.getMainLooper())
+                try {
+                    handler.post {
+                        if (movie.cardImageUrl != null) {
+                            cardView.titleText = movie.title
+                            cardView.contentText = movie.studio
+                            cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
+                            Glide.with(viewHolder.view.context)
+                                .load(movie.imageId)
+                                .skipMemoryCache(true)
+                                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                                .centerCrop()
+                                .error(mDefaultCardImage)
+                                .into(cardView.mainImageView)
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
         Log.d(TAG, "onBindViewHolder")
         if (movie.cardImageUrl != null) {
             cardView.titleText = movie.title
@@ -55,16 +76,22 @@ class CardPresenter : Presenter() {
             cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
             Glide.with(viewHolder.view.context)
                 .load(movie.imageId)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .centerCrop()
                 .error(mDefaultCardImage)
                 .into(cardView.mainImageView)
+            if (movie.request) {
+                val handler = Handler(Looper.getMainLooper())
+                try {
+                    handler.post {
+                        cardView.requestFocus()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
-    fun updateValue(newValue: Movie) {
-        _myValue.value = newValue
-    }
+
     override fun onUnbindViewHolder(viewHolder: Presenter.ViewHolder) {
         Log.d(TAG, "onUnbindViewHolder")
         val cardView = viewHolder.view as ImageCardView
@@ -87,15 +114,4 @@ class CardPresenter : Presenter() {
         private val CARD_WIDTH = 313
         private val CARD_HEIGHT = 176
     }
-}
-
-class ObservableProperty<T>(private var _value: T) {
-    var value: T
-        get() = _value
-        set(newValue) {
-            if (_value != newValue) {
-                _value = newValue
-                println("Value changed to: $newValue")
-            }
-        }
 }

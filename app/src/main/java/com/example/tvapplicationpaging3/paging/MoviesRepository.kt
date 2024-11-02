@@ -7,13 +7,13 @@ import javax.inject.Inject
 import kotlin.math.ceil
 
 class MoviesRepository @Inject constructor() {
-    private val intList = Array(100) { it }
+    private val intList = Array(500) { it }
 
-    fun getMovies(startPosition: Int = 0): Pager<Int, Movie> =
+    fun getMovies(startPosition: Int = 500): Pager<Int, Movie> =
         Pager(
             config = PagingConfig(
                 pageSize = 1,
-                prefetchDistance = 80,
+                prefetchDistance = intList.size,
                 enablePlaceholders = false,
             ),
             initialKey = makeInitKey(startPosition),

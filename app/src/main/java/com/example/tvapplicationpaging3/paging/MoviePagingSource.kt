@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@Suppress("UNREACHABLE_CODE")
 class MoviePagingSource(
     private val titleList: Array<Int>,
     private val startPosition: Int,
@@ -41,20 +42,31 @@ class MoviePagingSource(
                         startPosition + ((position - initPosition) * pageSize)
                     }
                 }
-                for (i in start until start + pageSize) {
-                    if (0 <= start && i < titleList.size) {
-                        // 最初の項目にダミー画像を追加
-                        movieList.add(
-                            Movie(
-                                title = "test$i",
-                                description = "description",
-                                cardImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png",
-                                backgroundImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png"
-                            )
+//                for (i in start until start + pageSize) {
+//                    if (0 <= start && i < titleList.size) {
+//                        // 最初の項目にダミー画像を追加
+//                        movieList.add(
+//                            Movie(
+//                                title = "test$i",
+//                                description = "description",
+//                                cardImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png",
+//                                backgroundImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png",
+//                            )
+//                        )
+//                    }
+//                }
+                titleList.forEach { i ->
+                    movieList.add(
+                        Movie(
+                            title = "test$i",
+                            description = "description",
+                            cardImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png",
+                            backgroundImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png",
+                            request = i == 4
                         )
-                    }
+                    )
                 }
-                fetchImages(movieList)
+                fetchImages(movieList, position)
                 val prevKey = if (position == 0) {
                     null
                 } else {
@@ -68,8 +80,8 @@ class MoviePagingSource(
                     }
                 return@withContext LoadResult.Page(
                     data = movieList,
-                    prevKey = prevKey,
-                    nextKey = nextKey
+                    prevKey = null,
+                    nextKey = null
                 )
             }
         } catch (e: Exception) {
@@ -77,22 +89,22 @@ class MoviePagingSource(
         }
     }
 
-    private fun fetchImages(list: MutableList<Movie>): Unit {
+    private fun fetchImages(list: MutableList<Movie>, position: Int) {
         // ここに画像取得のロジックを追加
-        CoroutineScope(Dispatchers.IO).launch {
-            Thread.sleep(2000)
-//            list.add(
-//                Movie(
-//                    title = "Dispatchers Finish",
-//                    description = "description",
-//                    cardImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png",
-//                    backgroundImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png",
-//                    imageId = R.drawable.app_icon_your_company
-//                )
-//            )
-            val item = list.firstOrNull()
-            item?.title = "Dispatchers Finish"
-            item?.imageId = R.drawable.app_icon_your_company
+        list.forEachIndexed { index, it ->
+            CoroutineScope(Dispatchers.IO).launch {
+                Thread.sleep(2000)
+
+                it.title = "Dispatchers Finish $index"
+                it.imageId = R.drawable.app_icon_your_company
+                it.listener?.complete()
+                it.listener?.complete()
+
+                Log.d(
+                    "honda", "comp" +
+                            "lete position = $index"
+                )
+            }
         }
     }
 }
