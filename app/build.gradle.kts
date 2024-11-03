@@ -45,6 +45,12 @@ dependencies {
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
 
+    val paging_version = "3.3.2"
+
+    implementation("androidx.paging:paging-runtime:$paging_version")
+
+    // alternatively - without Android dependencies for tests
+    testImplementation("androidx.paging:paging-common:$paging_version")
     // To use Kotlin Symbol Processing (KSP)
     implementation("androidx.leanback:leanback-paging:1.1.0-alpha11")
     // optional - Kotlin Extensions and Coroutines support for Room
