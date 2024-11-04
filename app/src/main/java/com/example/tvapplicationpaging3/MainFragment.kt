@@ -29,6 +29,7 @@ import androidx.leanback.widget.HorizontalGridView
 import androidx.leanback.widget.ImageCardView
 import androidx.leanback.widget.ListRow
 import androidx.leanback.widget.ListRowPresenter
+import androidx.leanback.widget.ListRowView
 import androidx.leanback.widget.OnItemViewClickedListener
 import androidx.leanback.widget.OnItemViewSelectedListener
 import androidx.leanback.widget.Presenter
@@ -84,6 +85,7 @@ class MainFragment : RowsSupportFragment() {
                 return oldItem == newItem
             }
         })
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.i(TAG, "onCreate")
         super.onActivityCreated(savedInstanceState)
@@ -147,61 +149,22 @@ class MainFragment : RowsSupportFragment() {
 //    }
 
 
-
     private fun loadRows() {
         val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
         val header = HeaderItem(0, "MovieList.MOVIE_CATEGORY[i]")
         movieAdapter.setHasStableIds(true)
         rowsAdapter.add(ListRow(header, movieAdapter))
-//        adapter = movieAdapter
 
         lifecycleScope.launch {
             viewModel.getMoviesAsFlow().collectLatest { value ->
                 movieAdapter.submitData(value)
-                val rowViewHolder =  getRowViewHolder(0)
-//                val horizontalGridView = rowViewHolder?.findViewById<HorizontalGridView>(R.id.horizontalGridView)
-
             }
-//            movieAdapter.loadStateFlow.collect { loadState ->
-//                val isListEmpty =
-//                    loadState.refresh is LoadState.NotLoading && movieAdapter.size() == 0
-////                // show empty list
-////                emptyList.isVisible = isListEmpty
-////                // Only show the list if refresh succeeds.
-////                list.isVisible = !isListEmpty
-//            }
         }
-
-        movieAdapter.addLoadStateListener { combinedLoadStates ->
-            if (combinedLoadStates.refresh !is LoadState.NotLoading) {
-//                return Unit // this is the void equivalent in kotlin
-            }
-//            val presenter = movieAdapter.presenterSelector
-//            val size = movieAdapter.size()
-//            val source = combinedLoadStates.source
-//            val append = combinedLoadStates.append
-//            val refresh = combinedLoadStates.refresh
-//            Log.d("test", "size = $size")
-//            Log.d("test", "source = $source")
-//            Log.d("test", "append = $append")
-//            Log.d("test", "refresh = $refresh")
-            Log.d("test", "combinedLoadStates.refresh = ${combinedLoadStates.refresh}")
-        }
-       val s = (rowsAdapter as ArrayObjectAdapter)
-        val rows = s.get(0)
-
-//        rows.
         adapter = rowsAdapter
-//        adapter?.getR
     }
 
 
-
     private fun setupEventListeners() {
-//        setOnSearchClickedListener {
-//            Toast.makeText(requireContext(), "Implement your own in-app search", Toast.LENGTH_LONG)
-//                .show()
-//        }
         onItemViewClickedListener = ItemViewClickedListener()
         onItemViewSelectedListener = ItemViewSelectedListener()
     }
@@ -214,8 +177,9 @@ class MainFragment : RowsSupportFragment() {
             row: Row
         ) {
 
+
             if (item is Movie) {
-//                movieAdapter.notifyItemRangeChanged(0,5)
+
             } else if (item is String) {
                 if (item.contains(getString(R.string.error_fragment))) {
                     val intent = Intent(context!!, BrowseErrorActivity::class.java)
@@ -232,7 +196,12 @@ class MainFragment : RowsSupportFragment() {
             itemViewHolder: Presenter.ViewHolder?, item: Any?,
             rowViewHolder: RowPresenter.ViewHolder, row: Row
         ) {
-//
+            if (false) {
+                val view = rowViewHolder.view
+                val view2 = (view as ListRowView)
+                val gridView = view2.gridView
+                gridView.scrollToPosition(0)
+            }
             if (item is Movie) {
                 mBackgroundUri = item.backgroundImageUrl
                 startBackgroundTimer()
