@@ -29,7 +29,6 @@ class MoviePagingSource(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> {
         val position = params.key ?: INIT_INDEX
-        Log.d("", "honda load position = $position")
         return try {
             withContext(Dispatchers.IO) {
                 val movieList = mutableListOf<Movie>()
@@ -58,26 +57,25 @@ class MoviePagingSource(
                 titleList.forEach { i ->
                     movieList.add(
                         Movie(
-                            title = "test$i",
+                            title = "test${i + 1}",
                             description = "description",
                             cardImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png",
                             backgroundImageUrl = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png",
-                            request = i == 4
                         )
                     )
                 }
-                fetchImages(movieList, position)
-                val prevKey = if (position == 0) {
-                    null
-                } else {
-                    position - 1
-                }
-                val nextKey =
-                    if (movieList.isNullOrEmpty() || start + pageSize > titleList.size) {
-                        null
-                    } else {
-                        position + 1
-                    }
+                fetchImages(movieList, initPosition)
+//                val prevKey = if (position == 0) {
+//                    null
+//                } else {
+//                    position - 1
+//                }
+//                val nextKey =
+//                    if (movieList.isNullOrEmpty() || start + pageSize > titleList.size) {
+//                        null
+//                    } else {
+//                        position + 1
+//                    }
                 return@withContext LoadResult.Page(
                     data = movieList,
                     prevKey = null,
@@ -89,20 +87,24 @@ class MoviePagingSource(
         }
     }
 
-    private fun fetchImages(list: MutableList<Movie>, position: Int) {
+    private fun fetchImages(movieList: MutableList<Movie>, initPosition: Int) {
+//        val firstItem = movieList.get(initPosition)
+//        CoroutineScope(Dispatchers.IO).launch {
+//            firstItem.title = "${firstItem.title} Finish"
+//            firstItem.cardImageUrl =
+//                "https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg"
+//            firstItem.listener?.complete()
+//
+//        }
         // ここに画像取得のロジックを追加
-        list.forEachIndexed { index, it ->
+        movieList.forEachIndexed { index, movie ->
             CoroutineScope(Dispatchers.IO).launch {
-                Thread.sleep(2000)
-
-                it.title = "Dispatchers Finish $index"
-                it.imageId = R.drawable.app_icon_your_company
-                it.listener?.complete()
-                it.listener?.complete()
-
+                movie.title = "Dispatchers Finish ${index + 1}"
+                movie.cardImageUrl =
+                    "https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg"
+                movie.listener?.complete()
                 Log.d(
-                    "honda", "comp" +
-                            "lete position = $index"
+                    "honda", "complete position = $index"
                 )
             }
         }

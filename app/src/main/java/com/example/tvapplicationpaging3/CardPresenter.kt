@@ -56,7 +56,7 @@ class CardPresenter : Presenter() {
                             cardView.contentText = movie.studio
                             cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
                             Glide.with(viewHolder.view.context)
-                                .load(movie.imageId)
+                                .load(movie.cardImageUrl)
                                 .skipMemoryCache(true)
                                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                                 .centerCrop()
@@ -75,20 +75,10 @@ class CardPresenter : Presenter() {
             cardView.contentText = movie.studio
             cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
             Glide.with(viewHolder.view.context)
-                .load(movie.imageId)
+                .load(movie.cardImageUrl)
                 .centerCrop()
                 .error(mDefaultCardImage)
                 .into(cardView.mainImageView)
-            if (movie.request) {
-                val handler = Handler(Looper.getMainLooper())
-                try {
-                    handler.post {
-                        cardView.requestFocus()
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
         }
     }
 

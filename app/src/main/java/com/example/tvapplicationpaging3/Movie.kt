@@ -13,9 +13,7 @@ data class Movie(
     var cardImageUrl: String? = null,
     var videoUrl: String? = null,
     var studio: String? = null,
-    var imageId: Int = 0,
-    var listener: Listener? = null,
-    var request:Boolean = false
+    var listener: Listener? = null
 ) : Serializable {
 
     override fun toString(): String {

@@ -1,6 +1,7 @@
 package com.example.tvapplicationpaging3
 
-//import com.example.tvapplicationpaging3.MovieList.list
+import java.util.Timer
+import java.util.TimerTask
 
 import android.content.Intent
 import android.graphics.Color
@@ -8,6 +9,18 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.leanback.app.BackgroundManager
+import androidx.leanback.app.BrowseSupportFragment
+import androidx.leanback.widget.ArrayObjectAdapter
+import androidx.leanback.widget.HeaderItem
+import androidx.leanback.widget.ListRow
+import androidx.leanback.widget.ListRowPresenter
+import androidx.leanback.widget.OnItemViewClickedListener
+import androidx.leanback.widget.OnItemViewSelectedListener
+import androidx.leanback.widget.Presenter
+import androidx.leanback.widget.Row
+import androidx.leanback.widget.RowPresenter
+import androidx.core.content.ContextCompat
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
@@ -15,52 +28,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.app.ActivityOptionsCompat
-import androidx.core.content.ContextCompat
-import androidx.core.view.get
 import androidx.fragment.app.viewModels
-import androidx.leanback.app.BackgroundManager
-import androidx.leanback.app.BrowseSupportFragment
-import androidx.leanback.app.RowsSupportFragment
 import androidx.leanback.paging.PagingDataAdapter
-import androidx.leanback.widget.ArrayObjectAdapter
-import androidx.leanback.widget.HeaderItem
-import androidx.leanback.widget.HorizontalGridView
-import androidx.leanback.widget.ImageCardView
-import androidx.leanback.widget.ListRow
-import androidx.leanback.widget.ListRowPresenter
 import androidx.leanback.widget.ListRowView
-import androidx.leanback.widget.OnItemViewClickedListener
-import androidx.leanback.widget.OnItemViewSelectedListener
-import androidx.leanback.widget.Presenter
-import androidx.leanback.widget.Row
-import androidx.leanback.widget.RowPresenter
-import androidx.leanback.widget.VerticalGridView
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.CombinedLoadStates
-import androidx.paging.LoadState
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.tvapplicationpaging3.paging.PagingSourceViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.util.Timer
-import java.util.TimerTask
-import javax.annotation.Nonnull
-
 
 /**
  * Loads a grid of cards with movies to browse.
  */
 @AndroidEntryPoint
-class MainFragment : RowsSupportFragment() {
+class MainFragment : BrowseSupportFragment() {
 
     private val mHandler = Handler(Looper.myLooper()!!)
     private lateinit var mBackgroundManager: BackgroundManager
@@ -69,22 +54,7 @@ class MainFragment : RowsSupportFragment() {
     private var mBackgroundTimer: Timer? = null
     private var mBackgroundUri: String? = null
     private val viewModel: PagingSourceViewModel by viewModels()
-    val movieAdapter: PagingDataAdapter<Movie> = PagingDataAdapter(CardPresenter(),
-        object : DiffUtil.ItemCallback<Movie>() {
-            override fun areItemsTheSame(
-                oldItem: Movie,
-                newItem: Movie
-            ): Boolean {
-                return oldItem.imageId == newItem.imageId
-            }
-
-            override fun areContentsTheSame(
-                oldItem: Movie,
-                newItem: Movie
-            ): Boolean {
-                return oldItem == newItem
-            }
-        })
+    private var firstLoad = true
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         Log.i(TAG, "onCreate")
@@ -92,31 +62,13 @@ class MainFragment : RowsSupportFragment() {
 
         prepareBackgroundManager()
 
-//        setupUIElements()
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-//        movieAdapter.setHasStableIds(true)
+        setupUIElements()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         loadRows()
-        // スクロール位置を更新
-        verticalGridView.setOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-//                viewModel.scrollPosition = (recyclerView.layoutManager as GridLayoutManager).findFirstVisibleItemPosition()
-            }
-        })
-//        // スクロール位置を更新
-//       horizontalGridView.setOnScrollListener(object : RecyclerView.OnScrollListener() {
-//            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-//                super.onScrollStateChanged(recyclerView, newState)
-//                viewModel.scrollPosition = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-//            }
-//        })
+
         setupEventListeners()
     }
 
@@ -136,35 +88,53 @@ class MainFragment : RowsSupportFragment() {
         requireActivity().windowManager.defaultDisplay.getMetrics(mMetrics)
     }
 
-//    private fun setupUIElements() {
-//        title = getString(R.string.browse_title)
-//        // over title
-//        headersState = BrowseSupportFragment.HEADERS_ENABLED
-//        isHeadersTransitionOnBackEnabled = true
-//
-//        // set fastLane (or headers) background color
-//        brandColor = ContextCompat.getColor(requireContext(), R.color.fastlane_background)
-//        // set search icon color
-//        searchAffordanceColor = ContextCompat.getColor(requireContext(), R.color.search_opaque)
-//    }
+    private fun setupUIElements() {
+        title = getString(R.string.browse_title)
+        // over title
+        headersState = BrowseSupportFragment.HEADERS_ENABLED
+        isHeadersTransitionOnBackEnabled = true
 
+        // set fastLane (or headers) background color
+        brandColor = ContextCompat.getColor(requireContext(), R.color.fastlane_background)
+        // set search icon color
+        searchAffordanceColor = ContextCompat.getColor(requireContext(), R.color.search_opaque)
+    }
 
     private fun loadRows() {
         val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
-        val header = HeaderItem(0, "MovieList.MOVIE_CATEGORY[i]")
-        movieAdapter.setHasStableIds(true)
-        rowsAdapter.add(ListRow(header, movieAdapter))
+        val cardPresenter = CardPresenter()
+        val movieAdapter: PagingDataAdapter<Movie> = PagingDataAdapter(cardPresenter,
+            object : DiffUtil.ItemCallback<Movie>() {
+                override fun areItemsTheSame(
+                    oldItem: Movie,
+                    newItem: Movie
+                ): Boolean {
+                    return oldItem.id == newItem.id
+                }
 
+                override fun areContentsTheSame(
+                    oldItem: Movie,
+                    newItem: Movie
+                ): Boolean {
+                    return oldItem == newItem
+                }
+            })
+        val header = HeaderItem(0, "MovieList.MOVIE_CATEGORY[i]")
+        rowsAdapter.add(ListRow(header, movieAdapter))
         lifecycleScope.launch {
-            viewModel.getMoviesAsFlow().collectLatest { value ->
-                movieAdapter.submitData(value)
+            viewModel.getMoviesAsFlow().collectLatest {
+                movieAdapter.submitData(it)
             }
         }
         adapter = rowsAdapter
     }
 
-
     private fun setupEventListeners() {
+        setOnSearchClickedListener {
+            Toast.makeText(requireContext(), "Implement your own in-app search", Toast.LENGTH_LONG)
+                .show()
+        }
+
         onItemViewClickedListener = ItemViewClickedListener()
         onItemViewSelectedListener = ItemViewSelectedListener()
     }
@@ -177,9 +147,18 @@ class MainFragment : RowsSupportFragment() {
             row: Row
         ) {
 
-
             if (item is Movie) {
-
+                Log.d(TAG, "Item: " + item.toString())
+//                val intent = Intent(context!!, DetailsActivity::class.java)
+//                intent.putExtra(DetailsActivity.MOVIE, item)
+//
+//                val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+//                    activity!!,
+//                    (itemViewHolder.view as ImageCardView).mainImageView,
+//                    DetailsActivity.SHARED_ELEMENT_NAME
+//                )
+//                    .toBundle()
+//                startActivity(intent, bundle)
             } else if (item is String) {
                 if (item.contains(getString(R.string.error_fragment))) {
                     val intent = Intent(context!!, BrowseErrorActivity::class.java)
@@ -196,11 +175,9 @@ class MainFragment : RowsSupportFragment() {
             itemViewHolder: Presenter.ViewHolder?, item: Any?,
             rowViewHolder: RowPresenter.ViewHolder, row: Row
         ) {
-            if (false) {
-                val view = rowViewHolder.view
-                val view2 = (view as ListRowView)
-                val gridView = view2.gridView
-                gridView.scrollToPosition(0)
+            if (item != null && firstLoad) {
+                firstLoad = false
+                (rowViewHolder.view as ListRowView).gridView.scrollToPosition(498)
             }
             if (item is Movie) {
                 mBackgroundUri = item.backgroundImageUrl
@@ -241,9 +218,32 @@ class MainFragment : RowsSupportFragment() {
         }
     }
 
+    private inner class GridItemPresenter : Presenter() {
+        override fun onCreateViewHolder(parent: ViewGroup): Presenter.ViewHolder {
+            val view = TextView(parent.context)
+            view.layoutParams = ViewGroup.LayoutParams(GRID_ITEM_WIDTH, GRID_ITEM_HEIGHT)
+            view.isFocusable = true
+            view.isFocusableInTouchMode = true
+            view.setBackgroundColor(ContextCompat.getColor(context!!, R.color.default_background))
+            view.setTextColor(Color.WHITE)
+            view.gravity = Gravity.CENTER
+            return Presenter.ViewHolder(view)
+        }
+
+        override fun onBindViewHolder(viewHolder: Presenter.ViewHolder, item: Any) {
+            (viewHolder.view as TextView).text = item as String
+        }
+
+        override fun onUnbindViewHolder(viewHolder: Presenter.ViewHolder) {}
+    }
+
     companion object {
         private val TAG = "MainFragment"
 
         private val BACKGROUND_UPDATE_DELAY = 300
+        private val GRID_ITEM_WIDTH = 200
+        private val GRID_ITEM_HEIGHT = 200
+        private val NUM_ROWS = 6
+        private val NUM_COLS = 15
     }
 }
