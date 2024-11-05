@@ -10,6 +10,9 @@ import androidx.leanback.widget.ImageCardView
 import androidx.leanback.widget.Presenter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
 /**
@@ -45,31 +48,22 @@ class CardPresenter : Presenter() {
     override fun onBindViewHolder(viewHolder: Presenter.ViewHolder, item: Any) {
         val movie = item as Movie
         val cardView = viewHolder.view as ImageCardView
-
         movie.listener = object : Listener {
             override fun complete() {
-                val handler = Handler(Looper.getMainLooper())
-                try {
-                    handler.post {
-                        if (movie.cardImageUrl != null) {
-                            cardView.titleText = movie.title
-                            cardView.contentText = movie.studio
-                            cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
-                            Glide.with(viewHolder.view.context)
-                                .load(movie.cardImageUrl)
-                                .skipMemoryCache(true)
-                                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                                .centerCrop()
-                                .error(mDefaultCardImage)
-                                .into(cardView.mainImageView)
-                        }
+                CoroutineScope(Dispatchers.Main).launch {
+                    try {
+                        setPresenter(movie, cardView, viewHolder)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
             }
         }
         Log.d(TAG, "onBindViewHolder")
+        setPresenter(movie, cardView, viewHolder)
+    }
+
+    private fun setPresenter(movie: Movie, cardView: ImageCardView, viewHolder: ViewHolder) {
         if (movie.cardImageUrl != null) {
             cardView.titleText = movie.title
             cardView.contentText = movie.studio
@@ -92,8 +86,6 @@ class CardPresenter : Presenter() {
 
     private fun updateCardBackgroundColor(view: ImageCardView, selected: Boolean) {
         val color = if (selected) sSelectedBackgroundColor else sDefaultBackgroundColor
-        // Both background colors should be set because the view"s background is temporarily visible
-        // during animations.
         view.setBackgroundColor(color)
         view.setInfoAreaBackgroundColor(color)
     }

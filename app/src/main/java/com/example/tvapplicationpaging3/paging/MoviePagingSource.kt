@@ -88,18 +88,10 @@ class MoviePagingSource(
     }
 
     private fun fetchImages(movieList: MutableList<Movie>, initPosition: Int) {
-//        val firstItem = movieList.get(initPosition)
-//        CoroutineScope(Dispatchers.IO).launch {
-//            firstItem.title = "${firstItem.title} Finish"
-//            firstItem.cardImageUrl =
-//                "https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg"
-//            firstItem.listener?.complete()
-//
-//        }
         // ここに画像取得のロジックを追加
         movieList.forEachIndexed { index, movie ->
             CoroutineScope(Dispatchers.IO).launch {
-                movie.title = "Dispatchers Finish ${index + 1}"
+                movie.title = "${movie.title} fin"
                 movie.cardImageUrl =
                     "https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg"
                 movie.listener?.complete()

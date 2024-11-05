@@ -41,11 +41,7 @@ class MovieAdapter : PagingDataAdapter<Movie, MovieViewHolder>(diffCallback) {
          */
         val diffCallback = object : DiffUtil.ItemCallback<Movie>() {
             override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean {
-                return if (oldItem is Movie && newItem is Movie) {
-                    oldItem.id == newItem.id
-                } else {
-                    oldItem == newItem
-                }
+                return oldItem.id == newItem.id
             }
 
             /**
