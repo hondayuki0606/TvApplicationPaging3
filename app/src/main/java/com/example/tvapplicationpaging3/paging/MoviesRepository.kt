@@ -7,37 +7,41 @@ import javax.inject.Inject
 import kotlin.math.ceil
 
 class MoviesRepository @Inject constructor() {
+
     private val intList = Array(500) { it }
 
-    fun getMovies(startPosition: Int = 500): Pager<Int, Movie> =
-        Pager(
+    // ページャーを取得
+    fun getMovies(startPosition: Int = 81): Pager<Int, Movie> {
+        val initPagePosition = calculateInitialKey(startPosition)
+        return Pager(
             config = PagingConfig(
-                pageSize = 1,
-                prefetchDistance = intList.size,
+                pageSize = PAGE_SIZE.toInt(),
+                prefetchDistance = 80,
                 enablePlaceholders = false,
+                initialLoadSize = PAGE_SIZE.toInt()
             ),
-            initialKey = makeInitKey(startPosition),
+            initialKey = initPagePosition,
             pagingSourceFactory = {
                 MoviePagingSource(
                     titleList = intList,
                     startPosition = startPosition,
-                    initPosition = makeInitKey(startPosition),
+                    initPagePosition = initPagePosition,
                     pageSize = PAGE_SIZE.toInt()
                 )
-            },
+            }
         )
-
-    private fun makeInitKey(startPosition: Int): Int {
-        var initKey = 0.0
-        if (0 == startPosition) {
-            return initKey.toInt()
-        } else {
-            val ret = startPosition / PAGE_SIZE
-            initKey = ceil(ret)
-        }
-        return initKey.toInt()
     }
-    companion object{
-        private const val PAGE_SIZE = 1.0
+
+    // 初期キーを計算
+    private fun calculateInitialKey(startPosition: Int): Int {
+        return if (startPosition == 0) {
+            0
+        } else {
+            ceil(startPosition / PAGE_SIZE).toInt()
+        }
+    }
+
+    companion object {
+        private const val PAGE_SIZE = 20.0
     }
 }
