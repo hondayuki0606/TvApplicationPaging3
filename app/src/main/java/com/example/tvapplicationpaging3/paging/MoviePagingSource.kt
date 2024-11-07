@@ -43,7 +43,7 @@ class MoviePagingSource(
                     }
                 }
                 for (i in start until start + pageSize) {
-                    if (0 <= start && i < titleList.size) {
+                    if (0 <= i && i < titleList.size) {
                         // 最初の項目にダミー画像を追加
                         movieList.add(
                             Movie(
