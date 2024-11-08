@@ -17,9 +17,12 @@ class MoviePagingSource(
 ) : PagingSource<Int, Movie>() {
     companion object {
         private const val INIT_PAGE_POSITION = -1    // 初期ページのキー
-        private const val IMAGE_URL = "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png"
-        private const val ALTERNATE_IMAGE_URL = "https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg"
+        const val IMAGE_URL =
+            "https://www.calm-blog.com/wp-content/uploads/2020/11/cardimage-36-1.png"
+        const val ALTERNATE_IMAGE_URL =
+            "https://letsenhance.io/static/8f5e523ee6b2479e26ecc91b9c25261e/1015f/MainAfter.jpg"
     }
+
     override fun getRefreshKey(state: PagingState<Int, Movie>): Int? {
         val position = state.anchorPosition ?: return null
         val prevKey = state.closestPageToPosition(position)?.prevKey
@@ -91,14 +94,13 @@ class MoviePagingSource(
     private fun fetchMovieAsync(movieList: MutableList<Movie>) {
         movieList.forEachIndexed { index, movie ->
             CoroutineScope(Dispatchers.IO).launch {
-                CoroutineScope(Dispatchers.IO).launch {
-                    movie.apply {
-                        title = "$title fin"
-                        cardImageUrl = ALTERNATE_IMAGE_URL
-                    }
-                    movie.listener?.complete()
-                    Log.d("MoviePagingSource", "Image fetch complete for position = $index")
+                Thread.sleep(5000)
+                movie.apply {
+                    title = "$title fin"
+                    cardImageUrl = ALTERNATE_IMAGE_URL
                 }
+                movie.listener?.complete()
+                Log.d("MoviePagingSource", "Image fetch complete for position = $index")
             }
         }
     }

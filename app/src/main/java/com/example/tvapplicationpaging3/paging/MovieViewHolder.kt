@@ -23,19 +23,5 @@ class MovieViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
         nameView.setTypeface(null, Typeface.BOLD)
         nameView.text = item?.title
         imageView.setImageResource(R.drawable.movie)
-        itemView.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                imageView.setImageResource(R.drawable.app_icon_your_company)
-            } else {
-                imageView.setImageResource(R.drawable.movie)
-            }
-        }
-        imageView.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                imageView.setImageResource(R.drawable.app_icon_your_company)
-            } else {
-                imageView.setImageResource(R.drawable.movie)
-            }
-        }
     }
 }

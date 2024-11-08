@@ -10,6 +10,7 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tvapplicationpaging3.paging.MovieAdapter
 import com.example.tvapplicationpaging3.paging.PagingSourceViewModel
@@ -55,14 +56,30 @@ class SubMainFragment : Fragment() {
         button?.requestFocus()
         val adapter = MovieAdapter()
         lifecycleScope.launch {
-            viewModel.getMoviesAsFlow().collectLatest { pagingData ->
-                adapter.submitData(pagingData)
-            }
+//            viewModel.getMoviesAsFlow().collectLatest { pagingData ->
+//                adapter.submitData(pagingData)
+//            }
         }
         recyclerView?.adapter = adapter
         adapter.addOnPagesUpdatedListener {
             recyclerView?.scrollToPosition(initPosition)
         }
+
+
+        recyclerView?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int){
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+                    val firstVisiblePosition = layoutManager.findFirstVisibleItemPosition()
+                    val lastVisiblePosition = layoutManager.findLastVisibleItemPosition()
+                    val middlePosition = (firstVisiblePosition + lastVisiblePosition) / 2
+
+                    // アダプターの選択された位置を更新
+                    adapter.updateSelectedPosition(middlePosition)
+                }
+            }
+        })
     }
 
     fun onKeyDown(keyCode: Int): Boolean {

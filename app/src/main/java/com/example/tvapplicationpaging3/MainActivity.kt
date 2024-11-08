@@ -17,15 +17,14 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         if (savedInstanceState == null) {
-            currentFragment = SubMainFragment()
+            currentFragment = MainFragment()
             supportFragmentManager.beginTransaction()
-                .replace(R.id.main_browse_fragment, currentFragment as SubMainFragment)
+                .replace(R.id.main_browse_fragment, currentFragment as MainFragment)
                 .commitNow()
         }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        Log.d("honda", "")
         if (currentFragment is SubMainFragment) {
           return  (currentFragment as SubMainFragment).onKeyDown(keyCode)
         }

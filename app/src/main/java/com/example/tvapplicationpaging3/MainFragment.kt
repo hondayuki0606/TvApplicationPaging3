@@ -31,13 +31,19 @@ import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.leanback.paging.PagingDataAdapter
 import androidx.leanback.widget.ListRowView
+import androidx.leanback.widget.ObjectAdapter
 import androidx.lifecycle.lifecycleScope
+import androidx.paging.LoadState
+import androidx.paging.PagingData
+import androidx.paging.map
 import androidx.recyclerview.widget.DiffUtil
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
+import com.example.tvapplicationpaging3.paging.MoviePagingSource
 import com.example.tvapplicationpaging3.paging.PagingSourceViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -100,32 +106,115 @@ class MainFragment : BrowseSupportFragment() {
         searchAffordanceColor = ContextCompat.getColor(requireContext(), R.color.search_opaque)
     }
 
+    val cardPresenter = CardPresenter()
+    val movieAdapter: PagingDataAdapter<Movie> = PagingDataAdapter(cardPresenter,
+        object : DiffUtil.ItemCallback<Movie>() {
+            override fun areItemsTheSame(
+                oldItem: Movie,
+                newItem: Movie
+            ): Boolean {
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(
+                oldItem: Movie,
+                newItem: Movie
+            ): Boolean {
+                return oldItem == newItem
+            }
+        })
+
     private fun loadRows() {
         val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
-        val cardPresenter = CardPresenter()
-        val movieAdapter: PagingDataAdapter<Movie> = PagingDataAdapter(cardPresenter,
-            object : DiffUtil.ItemCallback<Movie>() {
-                override fun areItemsTheSame(
-                    oldItem: Movie,
-                    newItem: Movie
-                ): Boolean {
-                    return oldItem.id == newItem.id
-                }
-
-                override fun areContentsTheSame(
-                    oldItem: Movie,
-                    newItem: Movie
-                ): Boolean {
-                    return oldItem == newItem
-                }
-            })
         val header = HeaderItem(0, "MovieList.MOVIE_CATEGORY[i]")
         rowsAdapter.add(ListRow(header, movieAdapter))
         lifecycleScope.launch {
-            viewModel.getMoviesAsFlow().collectLatest {
-                movieAdapter.submitData(it)
+            // 最初に仮データを表示
+            viewModel.load()
+            viewModel.pagingDataFlow.collectLatest { pagingData ->
+                movieAdapter.submitData(pagingData)
             }
+
+//            viewModel.uiState.collectLatest {
+//                movieAdapter.submitData(
+//                    PagingData.from(
+//                        listOf(
+//                            Movie(
+//                                title = "test",
+//                                description = "description",
+//                                cardImageUrl = MoviePagingSource.IMAGE_URL,
+//                                backgroundImageUrl = MoviePagingSource.ALTERNATE_IMAGE_URL,
+//                            ),
+//                            Movie(
+//                                title = "test",
+//                                description = "description",
+//                                cardImageUrl = MoviePagingSource.IMAGE_URL,
+//                                backgroundImageUrl = MoviePagingSource.ALTERNATE_IMAGE_URL,
+//                            )
+//                        )
+//                    )
+//                )
+//                when (val state = viewModel.uiState.value) {
+//                    is UIState.Loading -> {
+//                        Log.d("", "honda Loading")
+//                    }
+//
+//                    is UIState.Success -> {
+//                        movieAdapter.addLoadStateListener {
+//                            Log.d("", "honda addLoadStateListener state$it ")
+//                        }
+////                        movieAdapter.retry()
+//                        movieAdapter.registerObserver(object : ObjectAdapter.DataObserver() {
+//                            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+//                                super.onItemRangeInserted(positionStart, itemCount)
+//                                // 新しいアイテムが追加されたときの処理
+//                                val item = movieAdapter.get(positionStart)
+//                                Log.d(
+//                                    "",
+//                                    "honda onItemRangeInserted item title =${item?.title}, positionStart$positionStart itemCount$itemCount"
+//                                )
+//                            }
+//
+//                            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+//                                super.onItemRangeRemoved(positionStart, itemCount)
+//                                // アイテムが削除されたときの処理
+//                                Log.d("", "honda onItemRangeRemoved")
+//                            }
+//                        })
+//                        Log.d("", "honda Success")
+//                        movieAdapter.submitData(state.data)
+//                        // これにより、PagingDataの更新がある度にMovieAdapterに通知される
+//
+//                    }
+//
+//                    is UIState.Error -> {
+//                        Log.d("", "honda Error")
+//                    }
+//                }
+//
+//            }
+//            movieAdapter.loadStateFlow.collect { loadState->
+//                Log.d("", "honda loadStateFlowcollect")
+//                when (loadState.refresh) {
+//                    is LoadState.Loading -> {
+//                        // 初期ロード中のUI表示
+//                        Log.d("", "honda CircularProgressIndicator")
+////                        ()
+//                    }
+//                    is LoadState.Error -> {
+//                        // エラー時のUI表示
+//                        Log.d("", "honda エラー時のUI表示")
+////                        Text("Error: ${(loadState.refresh as LoadState.Error).error.message}")
+//                    }
+//                    else -> {
+//                        // 他の状態
+//                        Log.d("", "honda 他の状態")
+//                    }
+//                }
+//            }
+
         }
+
         adapter = rowsAdapter
     }
 
@@ -146,7 +235,7 @@ class MainFragment : BrowseSupportFragment() {
             rowViewHolder: RowPresenter.ViewHolder,
             row: Row
         ) {
-
+movieAdapter.refresh()
             if (item is Movie) {
                 Log.d(TAG, "Item: " + item.toString())
 //                val intent = Intent(context!!, DetailsActivity::class.java)
@@ -177,7 +266,7 @@ class MainFragment : BrowseSupportFragment() {
         ) {
             if (item != null && firstLoad) {
                 firstLoad = false
-                (rowViewHolder.view as ListRowView).gridView.scrollToPosition(498)
+//                (rowViewHolder.view as ListRowView).gridView.scrollToPosition(498)
             }
             if (item is Movie) {
                 mBackgroundUri = item.backgroundImageUrl

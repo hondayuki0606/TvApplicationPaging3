@@ -2,21 +2,23 @@ package com.example.tvapplicationpaging3.paging
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.example.tvapplicationpaging3.Movie
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import kotlin.math.ceil
 
 class MoviesRepository @Inject constructor() {
 
-    private val intList = Array(500) { it }
+    private val intList = Array(10) { it }
 
     // ページャーを取得
-    fun getMovies(startPosition: Int = 81): Pager<Int, Movie> {
+    fun getMovies(startPosition: Int = 2): Flow<PagingData<Movie>> {
         val initPagePosition = calculateInitialKey(startPosition)
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE.toInt(),
-                prefetchDistance = 80,
+                prefetchDistance = 5,
                 enablePlaceholders = false,
                 initialLoadSize = PAGE_SIZE.toInt()
             ),
@@ -29,19 +31,22 @@ class MoviesRepository @Inject constructor() {
                     pageSize = PAGE_SIZE.toInt()
                 )
             }
-        )
+        ).flow
     }
 
     // 初期キーを計算
     private fun calculateInitialKey(startPosition: Int): Int {
-        return if (startPosition == 0) {
-            0
+        var initKey = 0.0
+        if (0 == startPosition) {
+            return initKey.toInt()
         } else {
-            ceil(startPosition / PAGE_SIZE).toInt()
+            val ret = startPosition / PAGE_SIZE
+            initKey = ceil(ret)
         }
+        return initKey.toInt()
     }
 
     companion object {
-        private const val PAGE_SIZE = 20.0
+        private const val PAGE_SIZE = 5.0
     }
 }
