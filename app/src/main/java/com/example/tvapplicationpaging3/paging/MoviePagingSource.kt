@@ -50,14 +50,16 @@ class MoviePagingSource(
                         // 最初の項目にダミー画像を追加
                         movieList.add(
                             Movie(
-                                title = "test$i",
+                                title = "test$i fin",
                                 description = "description",
-                                cardImageUrl = IMAGE_URL,
+                                cardImageUrl = ALTERNATE_IMAGE_URL,
                                 backgroundImageUrl = ALTERNATE_IMAGE_URL,
                             )
                         )
                     }
                 }
+                Thread.sleep(5000)
+//                fetchMovieAsync(movieList)
 //                titleList.forEach { i ->
 //                    movieList.add(
 //                        Movie(
@@ -68,7 +70,7 @@ class MoviePagingSource(
 //                        )
 //                    )
 //                }
-                fetchMovieAsync(movieList)
+
                 val prevKey = if (currentPagePosition == 0) {
                     null
                 } else {
@@ -93,15 +95,15 @@ class MoviePagingSource(
 
     private fun fetchMovieAsync(movieList: MutableList<Movie>) {
         movieList.forEachIndexed { index, movie ->
-            CoroutineScope(Dispatchers.IO).launch {
+//            CoroutineScope(Dispatchers.IO).launch {
                 Thread.sleep(5000)
                 movie.apply {
                     title = "$title fin"
                     cardImageUrl = ALTERNATE_IMAGE_URL
                 }
-                movie.listener?.complete()
+//                movie.listener?.complete()
                 Log.d("MoviePagingSource", "Image fetch complete for position = $index")
-            }
+//            }
         }
     }
 }

@@ -10,15 +10,13 @@ import kotlin.math.ceil
 
 class MoviesRepository @Inject constructor() {
 
-    private val intList = Array(10) { it }
-
     // ページャーを取得
-    fun getMovies(startPosition: Int = 2): Flow<PagingData<Movie>> {
+    fun getMovies(startPosition: Int, intList:Array<Int>): Flow<PagingData<Movie>> {
         val initPagePosition = calculateInitialKey(startPosition)
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE.toInt(),
-                prefetchDistance = 5,
+                prefetchDistance = 1,
                 enablePlaceholders = false,
                 initialLoadSize = PAGE_SIZE.toInt()
             ),

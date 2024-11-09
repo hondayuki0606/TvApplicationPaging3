@@ -113,13 +113,19 @@ class MainFragment : BrowseSupportFragment() {
                 oldItem: Movie,
                 newItem: Movie
             ): Boolean {
-                return oldItem.id == newItem.id
+                Log.d("", "honda areItemsTheSame oldItem ${oldItem.title}")
+                Log.d("", "honda areItemsTheSame newItem ${newItem.title}")
+//if(movieAdapter.size())
+//              Log.d("", "honda areItemsTheSame newItem ${movieAdapter.size()}")
+                return oldItem.cardImageUrl == newItem.cardImageUrl
             }
 
             override fun areContentsTheSame(
                 oldItem: Movie,
                 newItem: Movie
             ): Boolean {
+                Log.d("", "honda areContentsTheSame oldItem ${oldItem.title}")
+                Log.d("", "honda areContentsTheSame newItem ${newItem.title}")
                 return oldItem == newItem
             }
         })
@@ -131,8 +137,13 @@ class MainFragment : BrowseSupportFragment() {
         lifecycleScope.launch {
             // 最初に仮データを表示
             viewModel.load()
-            viewModel.pagingDataFlow.collectLatest { pagingData ->
-                movieAdapter.submitData(pagingData)
+            viewModel.uiState.collectLatest { state ->
+                Log.d("", "honda state = ${state}")
+                if (state.isLoading) {
+                    movieAdapter.submitData(state.pagingDataFlow)
+                } else {
+                    Log.d("", "honda errorMessage = ${state.errorMessage}")
+                }
             }
 
 //            viewModel.uiState.collectLatest {
@@ -235,7 +246,7 @@ class MainFragment : BrowseSupportFragment() {
             rowViewHolder: RowPresenter.ViewHolder,
             row: Row
         ) {
-movieAdapter.refresh()
+            movieAdapter.refresh()
             if (item is Movie) {
                 Log.d(TAG, "Item: " + item.toString())
 //                val intent = Intent(context!!, DetailsActivity::class.java)

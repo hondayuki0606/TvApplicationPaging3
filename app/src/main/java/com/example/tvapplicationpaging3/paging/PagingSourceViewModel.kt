@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,19 +18,30 @@ import javax.inject.Inject
 class PagingSourceViewModel @Inject constructor(
     private val moviesRepository: MoviesRepository
 ) : ViewModel() {
-    private val _pagingDataFlow = MutableStateFlow<PagingData<Movie>>(PagingData.empty())
-    val pagingDataFlow: StateFlow<PagingData<Movie>> = _pagingDataFlow
+    data class UiState(
+        val pagingDataFlow: PagingData<Movie> = PagingData.empty(),
+        val isLoading: Boolean = false,
+        val errorMessage: String? = null
+    )
 
-    fun load(){
+    // UiStateを保持するStateFlow
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState: StateFlow<UiState> = _uiState
+//    private val _pagingDataFlow = MutableStateFlow<PagingData<Movie>>(PagingData.empty())
+//    val pagingDataFlow: StateFlow<PagingData<Movie>> = _pagingDataFlow
+    private val intList = Array(100) { it }
+    private val startPosition = 99
+    fun load() {
         // 最初に仮データを設定
         loadFakeData()
 
         // 実際のデータを後から取得
         fetchMovies()
     }
+
     private fun loadFakeData() {
         // 仮データとして100件を設定
-        val fakeMovies = List(100) { index ->
+        val fakeMovies = List(intList.size) { index ->
             Movie(
                 id = index.toLong(), title = "Fake Movie $index",
                 description = "description",
@@ -39,16 +51,29 @@ class PagingSourceViewModel @Inject constructor(
         }
 
         // 仮データをPagingDataに変換して送信
-        _pagingDataFlow.value = PagingData.from(fakeMovies)
+        _uiState.update {
+            it.copy(
+                pagingDataFlow = PagingData.from(fakeMovies),
+                isLoading = true,
+                errorMessage = null
+            )
+        }
     }
 
-     private fun fetchMovies() {
+    private fun fetchMovies() {
         viewModelScope.launch {
             // 実際のデータを取得（例えばAPIから）
-            moviesRepository.getMovies().collectLatest { pagingData ->
-                // 実際のデータで更新
-                _pagingDataFlow.value = pagingData
-            }
+            moviesRepository.getMovies(startPosition = startPosition, intList = intList)
+                .collectLatest { pagingData ->
+                    // 実際のデータで更新
+                    _uiState.update {
+                        it.copy(
+                            pagingDataFlow = pagingData,
+                            isLoading = true,
+                            errorMessage = null
+                        )
+                    }
+                }
         }
     }
 //    // UIStateクラス
