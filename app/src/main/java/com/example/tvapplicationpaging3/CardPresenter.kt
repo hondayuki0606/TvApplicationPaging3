@@ -10,6 +10,9 @@ import androidx.leanback.widget.ImageCardView
 import androidx.leanback.widget.Presenter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.tvapplicationpaging3.paging.Cheese
+import com.example.tvapplicationpaging3.paging.CheeseListItem
+import com.example.tvapplicationpaging3.paging.MoviePagingSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,24 +49,32 @@ class CardPresenter : Presenter() {
     }
 
     override fun onBindViewHolder(viewHolder: Presenter.ViewHolder, item: Any) {
-        val movie = item as Movie
         val cardView = viewHolder.view as ImageCardView
-        movie.listener = object : Listener {
-            override fun complete() {
-                CoroutineScope(Dispatchers.Main).launch {
-                    try {
-                        setPresenter(movie, cardView, viewHolder)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                }
+        when (item) {
+            is Movie -> {
+                setMoviePresenter(item, cardView, viewHolder)
+            }
+
+            is CheeseListItem -> {
+                setCheesePresenter(item, cardView, viewHolder)
             }
         }
-        Log.d(TAG, "onBindViewHolder")
-        setPresenter(movie, cardView, viewHolder)
+
+//        movie.listener = object : Listener {
+//            override fun complete() {
+//                CoroutineScope(Dispatchers.Main).launch {
+//                    try {
+//                        setPresenter(movie, cardView, viewHolder)
+//                    } catch (e: Exception) {
+//                        e.printStackTrace()
+//                    }
+//                }
+//            }
+//        }
+        Log.d("TAG", "onBindViewHolder")
     }
 
-    private fun setPresenter(movie: Movie, cardView: ImageCardView, viewHolder: ViewHolder) {
+    private fun setMoviePresenter(movie: Movie, cardView: ImageCardView, viewHolder: ViewHolder) {
         if (movie.cardImageUrl != null) {
             cardView.titleText = movie.title
             cardView.contentText = movie.studio
@@ -74,6 +85,23 @@ class CardPresenter : Presenter() {
                 .error(mDefaultCardImage)
                 .into(cardView.mainImageView)
         }
+    }
+
+    private fun setCheesePresenter(
+        cheeseListItem: CheeseListItem,
+        cardView: ImageCardView,
+        viewHolder: ViewHolder
+    ) {
+//        if (cheese.cardImageUrl != null) {
+        cardView.titleText = cheeseListItem.name
+        cardView.contentText = cheeseListItem.name
+        cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
+        Glide.with(viewHolder.view.context)
+            .load(MoviePagingSource.ALTERNATE_IMAGE_URL)
+            .centerCrop()
+            .error(mDefaultCardImage)
+            .into(cardView.mainImageView)
+//    }
     }
 
     override fun onUnbindViewHolder(viewHolder: Presenter.ViewHolder) {

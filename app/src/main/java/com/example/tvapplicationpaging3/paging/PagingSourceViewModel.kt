@@ -5,11 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.insertSeparators
+import androidx.paging.map
 import com.example.tvapplicationpaging3.Movie
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,10 +31,8 @@ class PagingSourceViewModel @Inject constructor(
     // UiStateを保持するStateFlow
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState
-//    private val _pagingDataFlow = MutableStateFlow<PagingData<Movie>>(PagingData.empty())
-//    val pagingDataFlow: StateFlow<PagingData<Movie>> = _pagingDataFlow
     private val intList = Array(100) { it }
-    private val startPosition = 99
+    private val startPosition = 0
     fun load() {
         // 最初に仮データを設定
         loadFakeData()
@@ -76,31 +78,9 @@ class PagingSourceViewModel @Inject constructor(
                 }
         }
     }
-//    // UIStateクラス
-//    // Paging3のデータフロー
-//    private val pagingDataFlow = moviesRepository.getMovies().cachedIn(viewModelScope)
-//
-//    // UIStateで監視するためのStateFlow
-//    private val _uiState = MutableStateFlow<UIState>(UIState.Loading)
-//    val uiState: StateFlow<UIState> = _uiState
-//
-//    init {
-//        Log.d("honda","honda init")
-//        observePagingData()
-//    }
-//
-//    private fun observePagingData() {
-//        Log.d("honda","honda observePagingData")
-//        viewModelScope.launch {
-//            pagingDataFlow.collect { pagingData ->
-//                Log.d("honda","honda pagingDataFlow.collect")
-//                _uiState.value = UIState.Success(pagingData)
-//            }
-//        }
-//    }
+
+    fun getCheeseListItem(): Flow<PagingData<CheeseListItem>> {
+        return moviesRepository.getCheeseListItem(startPosition = startPosition, intList = intList)
+            .cachedIn(viewModelScope)
+    }
 }
-//sealed class UIState {
-//    object Loading : UIState()
-//    data class Success(val data: PagingData<Movie>) : UIState()
-//    data class Error(val exception: Throwable) : UIState()
-//}

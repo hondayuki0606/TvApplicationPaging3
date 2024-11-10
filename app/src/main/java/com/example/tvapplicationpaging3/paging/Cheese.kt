@@ -7,4 +7,4 @@ import androidx.room.PrimaryKey
  * Data class that represents our items.
  */
 @Entity
-data class Cheese(@PrimaryKey(autoGenerate = true) val id: Int, val name: String)
+data class Cheese(@PrimaryKey(autoGenerate = true) val id: Int, var name: String)

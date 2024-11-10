@@ -30,20 +30,16 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.leanback.paging.PagingDataAdapter
-import androidx.leanback.widget.ListRowView
 import androidx.leanback.widget.ObjectAdapter
 import androidx.lifecycle.lifecycleScope
-import androidx.paging.LoadState
-import androidx.paging.PagingData
-import androidx.paging.map
 import androidx.recyclerview.widget.DiffUtil
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
-import com.example.tvapplicationpaging3.paging.MoviePagingSource
+import com.example.tvapplicationpaging3.paging.Cheese
+import com.example.tvapplicationpaging3.paging.CheeseListItem
 import com.example.tvapplicationpaging3.paging.PagingSourceViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -113,8 +109,8 @@ class MainFragment : BrowseSupportFragment() {
                 oldItem: Movie,
                 newItem: Movie
             ): Boolean {
-                Log.d("", "honda areItemsTheSame oldItem ${oldItem.title}")
-                Log.d("", "honda areItemsTheSame newItem ${newItem.title}")
+//                Log.d("", "honda areItemsTheSame oldItem ${oldItem.title}")
+//                Log.d("", "honda areItemsTheSame newItem ${newItem.title}")
 //if(movieAdapter.size())
 //              Log.d("", "honda areItemsTheSame newItem ${movieAdapter.size()}")
                 return oldItem.cardImageUrl == newItem.cardImageUrl
@@ -129,10 +125,49 @@ class MainFragment : BrowseSupportFragment() {
                 return oldItem == newItem
             }
         })
+    val movieList = mutableListOf<Movie>()
+    val cheeseListItemAdapter: PagingDataAdapter<CheeseListItem> = PagingDataAdapter(cardPresenter,
+        object : DiffUtil.ItemCallback<CheeseListItem>() {
+            override fun areItemsTheSame(
+                oldItem: CheeseListItem,
+                newItem: CheeseListItem
+            ): Boolean {
+                return oldItem.name == newItem.name
+            }
+
+            override fun areContentsTheSame(
+                oldItem: CheeseListItem,
+                newItem: CheeseListItem
+            ): Boolean {
+                return oldItem == newItem
+            }
+        })
 
     private fun loadRows() {
         val rowsAdapter = ArrayObjectAdapter(ListRowPresenter())
         val header = HeaderItem(0, "MovieList.MOVIE_CATEGORY[i]")
+//        rowsAdapter.add(ListRow(header, cheeseListItemAdapter))
+//        lifecycleScope.launch {
+//            viewModel.getCheeseListItem().collectLatest {
+//                cheeseListItemAdapter.submitData(it)
+//            }
+//        }
+        movieAdapter.registerObserver(object : ObjectAdapter.DataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                // 新しいアイテムが追加されたときの処理
+                for (i in positionStart until itemCount) {
+                    val item = movieAdapter.get(i)
+                    if (item != null) {
+                        movieList.add(item)
+                    }
+//                    Log.d(
+//                        "",
+//                        "honda onItemRangeInserted item title =${item?.title}, positionStart$positionStart itemCount$itemCount"
+//                    )
+                }
+            }
+        })
         rowsAdapter.add(ListRow(header, movieAdapter))
         lifecycleScope.launch {
             // 最初に仮データを表示
@@ -175,23 +210,7 @@ class MainFragment : BrowseSupportFragment() {
 //                            Log.d("", "honda addLoadStateListener state$it ")
 //                        }
 ////                        movieAdapter.retry()
-//                        movieAdapter.registerObserver(object : ObjectAdapter.DataObserver() {
-//                            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-//                                super.onItemRangeInserted(positionStart, itemCount)
-//                                // 新しいアイテムが追加されたときの処理
-//                                val item = movieAdapter.get(positionStart)
-//                                Log.d(
-//                                    "",
-//                                    "honda onItemRangeInserted item title =${item?.title}, positionStart$positionStart itemCount$itemCount"
-//                                )
-//                            }
-//
-//                            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-//                                super.onItemRangeRemoved(positionStart, itemCount)
-//                                // アイテムが削除されたときの処理
-//                                Log.d("", "honda onItemRangeRemoved")
-//                            }
-//                        })
+
 //                        Log.d("", "honda Success")
 //                        movieAdapter.submitData(state.data)
 //                        // これにより、PagingDataの更新がある度にMovieAdapterに通知される
@@ -235,18 +254,31 @@ class MainFragment : BrowseSupportFragment() {
                 .show()
         }
 
-        onItemViewClickedListener = ItemViewClickedListener()
+        onItemViewClickedListener = ItemViewClickedListener(movieList)
         onItemViewSelectedListener = ItemViewSelectedListener()
     }
 
-    private inner class ItemViewClickedListener : OnItemViewClickedListener {
+    private inner class ItemViewClickedListener(
+        private val movieList: MutableList<Movie>,
+    ) :
+        OnItemViewClickedListener {
         override fun onItemClicked(
             itemViewHolder: Presenter.ViewHolder,
             item: Any,
             rowViewHolder: RowPresenter.ViewHolder,
             row: Row
         ) {
-            movieAdapter.refresh()
+            lifecycleScope.launch {
+                val movie = movieList.find { it == item }
+                val index = movieList.indexOf(movie)
+                movie?.title = "OK"
+                movieAdapter.notifyItemRangeChanged(index, 1)
+//                viewModel.uiState.value.pagingDataFlow.map { item ->
+//                    if (item.title == "test0 fin") {
+//                        item.title = "OK"
+//                    }
+//                }
+            }
             if (item is Movie) {
                 Log.d(TAG, "Item: " + item.toString())
 //                val intent = Intent(context!!, DetailsActivity::class.java)
