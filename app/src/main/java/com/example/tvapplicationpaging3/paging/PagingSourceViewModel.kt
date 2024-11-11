@@ -43,23 +43,23 @@ class PagingSourceViewModel @Inject constructor(
 
     private fun loadFakeData() {
         // 仮データとして100件を設定
-        val fakeMovies = List(intList.size) { index ->
-            Movie(
-                id = index.toLong(), title = "Fake Movie $index",
-                description = "description",
-                cardImageUrl = MoviePagingSource.IMAGE_URL,
-                backgroundImageUrl = MoviePagingSource.ALTERNATE_IMAGE_URL,
-            )
-        }
-
-        // 仮データをPagingDataに変換して送信
-        _uiState.update {
-            it.copy(
-                pagingDataFlow = PagingData.from(fakeMovies),
-                isLoading = true,
-                errorMessage = null
-            )
-        }
+//        val fakeMovies = List(intList.size) { index ->
+//            Movie(
+//                id = index.toLong(), title = "Fake Movie $index",
+//                description = "description",
+//                cardImageUrl = MoviePagingSource.IMAGE_URL,
+//                backgroundImageUrl = MoviePagingSource.ALTERNATE_IMAGE_URL,
+//            )
+//        }
+//
+//        // 仮データをPagingDataに変換して送信
+//        _uiState.update {
+//            it.copy(
+//                pagingDataFlow = PagingData.from(fakeMovies),
+//                isLoading = true,
+//                errorMessage = null
+//            )
+//        }
     }
 
     private fun fetchMovies() {

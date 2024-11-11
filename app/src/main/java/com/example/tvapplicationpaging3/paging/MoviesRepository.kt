@@ -23,10 +23,10 @@ class MoviesRepository @Inject constructor() {
             config = PagingConfig(
                 pageSize = PAGE_SIZE.toInt(),
                 prefetchDistance = 1,
-                enablePlaceholders = false,
+                enablePlaceholders = true,
                 initialLoadSize = PAGE_SIZE.toInt()
             ),
-            initialKey = initPagePosition,
+            initialKey = null,
             pagingSourceFactory = {
                 MoviePagingSource(
                     titleList = intList,
