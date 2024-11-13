@@ -1,4 +1,4 @@
-package com.example.babydiarycompose.api
+package com.example.tvapplicationpaging3.api
 
 import com.example.babydiarycompose.infrastructure.CollectionFormats.*
 import retrofit2.http.*

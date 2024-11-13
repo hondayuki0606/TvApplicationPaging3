@@ -1,6 +1,7 @@
 @file:Suppress("unused")
-package com.example.babydiarycompose.infrastructure
+package com.example.tvapplicationpaging3.infrastructure
 
+import com.example.tvapplicationpaging3.infrastructure.Response
 import java.lang.RuntimeException
 
 open class ClientException(message: kotlin.String? = null, val statusCode: Int = -1, val response: Response? = null) : RuntimeException(message) {

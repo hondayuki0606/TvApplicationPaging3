@@ -1,4 +1,4 @@
-package com.example.babydiarycompose.infrastructure
+package com.example.tvapplicationpaging3.infrastructure
 
 enum class ResponseType {
     Success, Informational, Redirection, ClientError, ServerError

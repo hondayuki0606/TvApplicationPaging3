@@ -1,4 +1,4 @@
-package com.example.babydiarycompose.infrastructure
+package com.example.tvapplicationpaging3.infrastructure
 
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.ToJson

@@ -88,4 +88,19 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.leanback)
     implementation(libs.glide)
+
+    // define any required OkHttp artifacts without version
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.14.0")
+    // Retrofit
+    val retrofit2Version = "2.9.0"
+    implementation("com.squareup.retrofit2:retrofit:$retrofit2Version")
+    // Retrofit with Scalar Converter
+    implementation("com.squareup.retrofit2:converter-scalars:$retrofit2Version")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.1")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
 }

@@ -1,4 +1,4 @@
-package com.example.babydiarycompose.infrastructure
+package com.example.tvapplicationpaging3.infrastructure
 
 /**
  * Defines a config object for a given request.
