@@ -4,9 +4,8 @@ import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.tvapplicationpaging3.Movie
-import kotlinx.coroutines.CoroutineScope
+import com.example.tvapplicationpaging3.api.PostsApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MoviePagingSource(
@@ -14,6 +13,7 @@ class MoviePagingSource(
     private val startPosition: Int,
     private val initPagePosition: Int,
     private val pageSize: Int,
+    private val postsApi: PostsApi
 ) : PagingSource<Int, Movie>() {
     companion object {
         private const val INIT_PAGE_POSITION = -1    // 初期ページのキー
@@ -115,18 +115,15 @@ class MoviePagingSource(
                         if (0 <= i && i < titleList.size) {
                             // 最初の項目にダミー画像を追加
                             val index = (page - 1) * params.loadSize
-                            val movie = Movie(
-                                title = "test${i + index}",
-                                description = "description",
-                                cardImageUrl = IMAGE_URL,
-                                backgroundImageUrl = ALTERNATE_IMAGE_URL,
-                            )
+                            val movie = loadPage(i, index)
                             tmpMovieList.add(movie)
                         }
                     }
+
+
                     // then you always load current page and count correct value for
                     // itemsBefore and itemsAfter
-                    fetchMovieAsync(tmpMovieList)
+//                    fetchMovieAsync(tmpMovieList)
                     return@withContext LoadResult.Page(
                         data = tmpMovieList,
                         prevKey = if (page == 1) null else page - 1,
@@ -140,6 +137,25 @@ class MoviePagingSource(
             return LoadResult.Error(e)
         }
     }
+
+    private suspend fun loadPage(i: Int, index: Int): Movie {
+        val movie = Movie(
+            title = "test${i + index}",
+            description = "description",
+            cardImageUrl = IMAGE_URL,
+            backgroundImageUrl = ALTERNATE_IMAGE_URL,
+        )
+        try {
+            val test = postsApi.getPosts()
+            val ret = test.body()
+            Log.d("", "honda ret $ret")
+        } catch (e: Exception) {
+            Log.d("", "honda ret $e")
+        }
+        return movie
+
+    }
+
     private fun fetchMovieAsync(movieList: MutableList<Movie>) {
         movieList.forEachIndexed { index, movie ->
 //            CoroutineScope(Dispatchers.IO).launch {

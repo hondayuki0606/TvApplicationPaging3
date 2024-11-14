@@ -4,6 +4,7 @@ plugins {
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.android")
+    id("kotlinx-serialization")
 }
 
 android {
@@ -26,7 +27,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+//            buildConfigField("String", "BASE_URL", "\"https://localhost:3000/\"")
         }
+//        debug {
+//            buildConfigField("String", "BASE_URL", "\"https://localhost:3000/\"")
+//        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

@@ -1,20 +1,21 @@
 package com.example.tvapplicationpaging3.paging
 
 import android.util.Log
-import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.example.tvapplicationpaging3.Movie
+import com.example.tvapplicationpaging3.api.PostsApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import kotlin.math.ceil
 
-class MoviesRepository @Inject constructor() {
+class MoviesRepository @Inject constructor(
+    private val postsApi: PostsApi
+) {
 
     // ページャーを取得
     fun getMovies(startPosition: Int, intList: Array<Int>): Flow<PagingData<Movie>> {
@@ -22,7 +23,7 @@ class MoviesRepository @Inject constructor() {
         return Pager(
             config = PagingConfig(
                 pageSize = PAGE_SIZE.toInt(),
-                prefetchDistance = 1,
+                prefetchDistance = 10,
                 enablePlaceholders = true,
                 initialLoadSize = PAGE_SIZE.toInt()
             ),
@@ -32,7 +33,8 @@ class MoviesRepository @Inject constructor() {
                     titleList = intList,
                     startPosition = startPosition,
                     initPagePosition = initPagePosition,
-                    pageSize = PAGE_SIZE.toInt()
+                    pageSize = PAGE_SIZE.toInt(),
+                    postsApi = postsApi
                 )
             }
         ).flow

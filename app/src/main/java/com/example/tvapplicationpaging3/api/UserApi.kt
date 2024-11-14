@@ -1,13 +1,13 @@
 package com.example.tvapplicationpaging3.api
 
-import com.example.babydiarycompose.infrastructure.CollectionFormats.*
+import com.example.tvapplicationpaging3.infrastructure.CollectionFormats.*
 import retrofit2.http.*
 import retrofit2.Response
 import okhttp3.RequestBody
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-import com.example.babydiarycompose.models.User
+import com.example.tvapplicationpaging3.models.User
 
 interface UserApi {
     /**

@@ -1,6 +1,6 @@
-package com.example.babydiarycompose.infrastructure
+package com.example.tvapplicationpaging3.infrastructure
 
-import com.example.tvapplicationpaging3.infrastructure.Response
+import okhttp3.Response
 
 /**
  * Provides an extension to evaluation whether the response is a 1xx code
