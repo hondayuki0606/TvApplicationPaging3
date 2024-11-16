@@ -47,9 +47,8 @@ class CardPresenter : Presenter() {
         updateCardBackgroundColor(cardView, false)
         return Presenter.ViewHolder(cardView)
     }
-
-    override fun onBindViewHolder(viewHolder: Presenter.ViewHolder, item: Any) {
-        val cardView = viewHolder.view as ImageCardView
+    override fun onBindViewHolder(viewHolder: Presenter.ViewHolder?, item: Any?) {
+        val cardView = viewHolder?.view as ImageCardView
         when (item) {
             is Movie -> {
                 setMoviePresenter(item, cardView, viewHolder)
@@ -59,18 +58,6 @@ class CardPresenter : Presenter() {
                 setCheesePresenter(item, cardView, viewHolder)
             }
         }
-
-//        movie.listener = object : Listener {
-//            override fun complete() {
-//                CoroutineScope(Dispatchers.Main).launch {
-//                    try {
-//                        setPresenter(movie, cardView, viewHolder)
-//                    } catch (e: Exception) {
-//                        e.printStackTrace()
-//                    }
-//                }
-//            }
-//        }
         Log.d("TAG", "onBindViewHolder")
     }
 

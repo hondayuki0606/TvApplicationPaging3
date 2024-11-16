@@ -263,22 +263,22 @@ class MainFragment : BrowseSupportFragment() {
     ) :
         OnItemViewClickedListener {
         override fun onItemClicked(
-            itemViewHolder: Presenter.ViewHolder,
-            item: Any,
-            rowViewHolder: RowPresenter.ViewHolder,
-            row: Row
+            itemViewHolder: Presenter.ViewHolder?,
+            item: Any?,
+            rowViewHolder: RowPresenter.ViewHolder?,
+            row: Row?
         ) {
-            lifecycleScope.launch {
-                val movie = movieList.find { it == item }
-                val index = movieList.indexOf(movie)
-                movie?.title = "OK"
-                movieAdapter.notifyItemRangeChanged(index, 1)
-//                viewModel.uiState.value.pagingDataFlow.map { item ->
-//                    if (item.title == "test0 fin") {
-//                        item.title = "OK"
-//                    }
-//                }
-            }
+//            lifecycleScope.launch {
+//                val movie = movieList.find { it == item }
+//                val index = movieList.indexOf(movie)
+//                movie?.title = "OK"
+//                movieAdapter.notifyItemRangeChanged(index, 1)
+////                viewModel.uiState.value.pagingDataFlow.map { item ->
+////                    if (item.title == "test0 fin") {
+////                        item.title = "OK"
+////                    }
+////                }
+//            }
             if (item is Movie) {
                 Log.d(TAG, "Item: " + item.toString())
 //                val intent = Intent(context!!, DetailsActivity::class.java)

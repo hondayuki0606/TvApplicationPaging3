@@ -105,31 +105,34 @@ class MoviePagingSource(
                         prevKey = null,
                         nextKey = 1,
                         itemsBefore = 0,
-                        itemsAfter = 100,
+                        itemsAfter = titleList.size,
                     )
                 } else {
+                    // then you always load current page and count correct value for
+                    // itemsBefore and itemsAfter
                     val start = startPosition * (page - 1)
                     val tmpMovieList = mutableListOf<Movie>()
-
+                    Thread.sleep(1000)
                     for (i in start until start + pageSize) {
                         if (0 <= i && i < titleList.size) {
                             // 最初の項目にダミー画像を追加
                             val index = (page - 1) * params.loadSize
-                            val movie = loadPage(i, index)
+//                            val movie = loadPage(i, index)
+                            val movie = Movie(
+                                title = "test${i + index}",
+                                description = "description",
+                                cardImageUrl = IMAGE_URL,
+                                backgroundImageUrl = ALTERNATE_IMAGE_URL,
+                            )
                             tmpMovieList.add(movie)
                         }
                     }
-
-
-                    // then you always load current page and count correct value for
-                    // itemsBefore and itemsAfter
-//                    fetchMovieAsync(tmpMovieList)
                     return@withContext LoadResult.Page(
                         data = tmpMovieList,
                         prevKey = if (page == 1) null else page - 1,
                         nextKey = page + 1,
                         itemsBefore = (page - 1) * params.loadSize,
-                        itemsAfter = 100 - page * params.loadSize,
+                        itemsAfter = titleList.size - page * params.loadSize,
                     )
                 }
             }
@@ -159,7 +162,7 @@ class MoviePagingSource(
     private fun fetchMovieAsync(movieList: MutableList<Movie>) {
         movieList.forEachIndexed { index, movie ->
 //            CoroutineScope(Dispatchers.IO).launch {
-            Thread.sleep(5000)
+            Thread.sleep(1000)
             movie.apply {
                 title = "$title fin"
                 cardImageUrl = ALTERNATE_IMAGE_URL
