@@ -13,6 +13,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.tvapplicationpaging3.paging.Cheese
 import com.example.tvapplicationpaging3.paging.CheeseListItem
 import com.example.tvapplicationpaging3.paging.MoviePagingSource
+import com.example.tvapplicationpaging3.paging.MoviePagingSource.Companion.IMAGE_URL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,7 +30,7 @@ class CardPresenter : Presenter() {
 
     override fun onCreateViewHolder(parent: ViewGroup): Presenter.ViewHolder {
         Log.d(TAG, "onCreateViewHolder")
-
+        Log.d("TAG", "honda onBindViewHolder parent $parent")
         sDefaultBackgroundColor = ContextCompat.getColor(parent.context, R.color.default_background)
         sSelectedBackgroundColor =
             ContextCompat.getColor(parent.context, R.color.selected_background)
@@ -47,7 +48,9 @@ class CardPresenter : Presenter() {
         updateCardBackgroundColor(cardView, false)
         return Presenter.ViewHolder(cardView)
     }
+
     override fun onBindViewHolder(viewHolder: Presenter.ViewHolder?, item: Any?) {
+        Log.d("TAG", "honda onBindViewHolder viewHolder $viewHolder")
         val cardView = viewHolder?.view as ImageCardView
         when (item) {
             is Movie -> {
@@ -58,7 +61,23 @@ class CardPresenter : Presenter() {
                 setCheesePresenter(item, cardView, viewHolder)
             }
         }
+        if (item == null) {
+            setNullPresenter(cardView, viewHolder)
+        }
         Log.d("TAG", "onBindViewHolder")
+    }
+
+    private fun setNullPresenter(cardView: ImageCardView, viewHolder: ViewHolder) {
+//        if (movie.cardImageUrl != null) {
+//            cardView.titleText = movie.title
+//            cardView.contentText = movie.studio
+        cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
+        Glide.with(viewHolder.view.context)
+            .load(IMAGE_URL)
+            .centerCrop()
+            .error(mDefaultCardImage)
+            .into(cardView.mainImageView)
+//        }
     }
 
     private fun setMoviePresenter(movie: Movie, cardView: ImageCardView, viewHolder: ViewHolder) {

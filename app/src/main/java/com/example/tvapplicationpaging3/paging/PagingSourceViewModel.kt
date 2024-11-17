@@ -32,7 +32,7 @@ class PagingSourceViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState
     private val intList = Array(100) { it }
-    private val startPosition = 0
+    private val startPosition = 99
     fun load() {
         // 最初に仮データを設定
         loadFakeData()
