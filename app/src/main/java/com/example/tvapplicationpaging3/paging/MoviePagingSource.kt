@@ -40,15 +40,15 @@ class MoviePagingSource(
                     // so you immediately get 100 placeholders without delay
                     return@withContext LoadResult.Page(
                         data = emptyList(),
-                        prevKey = null,
-                        nextKey = 1,
-                        itemsBefore = 0,
-                        itemsAfter = titleList.size,
+                        prevKey = 20,
+                        nextKey = null,
+                        itemsBefore = titleList.size,
+                        itemsAfter = 0,
                     )
                 } else {
                     // then you always load current page and count correct value for
                     // itemsBefore and itemsAfter
-                    val start = startPosition * (page - 1)
+                    val start = 95 - ((20 - page)*pageSize)
                     val tmpMovieList = mutableListOf<Movie>()
                     Thread.sleep(1000)
                     for (i in start until start + pageSize) {
@@ -56,7 +56,7 @@ class MoviePagingSource(
                             // 最初の項目にダミー画像を追加
                             val index = (page - 1) * params.loadSize
                             val movie = Movie(
-                                title = "test${i + index}",
+                                title = "test${i}",
                                 description = "description",
                                 cardImageUrl = ALTERNATE_IMAGE_URL,
                                 backgroundImageUrl = ALTERNATE_IMAGE_URL,
@@ -66,10 +66,10 @@ class MoviePagingSource(
                     }
                     return@withContext LoadResult.Page(
                         data = tmpMovieList,
-                        prevKey =  null,
-                        nextKey = null,
-                        itemsBefore = 0,
-                        itemsAfter = titleList.size - page * params.loadSize,
+                        prevKey = page - 1,
+                        nextKey = if (page == 20) null else page + 1,
+                        itemsAfter = 0,
+                        itemsBefore = titleList.size -( 21-page ) * params.loadSize,
                     )
                 }
             }
