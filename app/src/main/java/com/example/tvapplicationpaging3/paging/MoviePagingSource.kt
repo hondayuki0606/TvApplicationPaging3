@@ -30,27 +30,86 @@ class MoviePagingSource(
 
         return prevKey?.plus(1) ?: nextKey?.minus(1)
     }
+//
+//    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> {
+//        val page = params.key
+//        return try {
+//            withContext(Dispatchers.IO) {
+//                if (page == null) {
+//                    // at first, return empty data with itemsAfter = 100,
+//                    // so you immediately get 100 placeholders without delay
+//                    itemsBefore = titleList.size
+//                    return@withContext LoadResult.Page(
+//                        data = emptyList(),
+//                        prevKey = 99,
+//                        nextKey = 99,
+//                        itemsBefore = itemsBefore,
+//                        itemsAfter = 10,
+//                    )
+//                } else {
+//                    // then you always load current page and count correct value for
+//                    // itemsBefore and itemsAfter
+//                    val start = page
+//                    val tmpMovieList = mutableListOf<Movie>()
+//                    Thread.sleep(100)
+//                    for (i in start until start + pageSize) {
+//                        if (0 <= i && i < titleList.size) {
+//                            // 最初の項目にダミー画像を追加
+//                            val index = (page - 1) * params.loadSize
+//                            val movie = Movie(
+//                                title = "test${i}",
+//                                description = "description",
+//                                cardImageUrl = ALTERNATE_IMAGE_URL,
+//                                backgroundImageUrl = ALTERNATE_IMAGE_URL,
+//                            )
+//                            tmpMovieList.add(movie)
+//                        }
+//                    }
+//                    Log.d("honda","honda page $page")
+//                    itemsBefore -= 1
+//                    return@withContext LoadResult.Page(
+//                        data = tmpMovieList,
+//                        prevKey = page - 1,
+//                        nextKey = page + 1,
+//                        itemsAfter = 0,
+//                        itemsBefore = itemsBefore,
+//                    )
+//                }
+//            }
+//        } catch (e: Exception) {
+//            return LoadResult.Error(e)
+//        }
+//    }
+
+
+    private var itemsBefore = 0
+    private var itemsAfter = 0
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> {
         val page = params.key
         return try {
             withContext(Dispatchers.IO) {
                 if (page == null) {
-                    // at first, return empty data with itemsAfter = 100,
-                    // so you immediately get 100 placeholders without delay
+                    itemsBefore = startPosition
+                    itemsAfter = titleList.size - startPosition
                     return@withContext LoadResult.Page(
                         data = emptyList(),
-                        prevKey = 20,
-                        nextKey = null,
-                        itemsBefore = titleList.size,
-                        itemsAfter = 0,
+                        prevKey = initPagePosition - 1,
+                        nextKey = initPagePosition,
+                        itemsBefore = itemsBefore,
+                        itemsAfter = itemsAfter,
                     )
                 } else {
                     // then you always load current page and count correct value for
                     // itemsBefore and itemsAfter
-                    val start = 95 - ((20 - page)*pageSize)
+                    val start = if (page == initPagePosition) {
+                        startPosition
+                    } else {
+                        page
+                    }
+//                    val start = 95 - ((20 - page) * pageSize)
                     val tmpMovieList = mutableListOf<Movie>()
-                    Thread.sleep(1000)
+                    Thread.sleep(300)
                     for (i in start until start + pageSize) {
                         if (0 <= i && i < titleList.size) {
                             // 最初の項目にダミー画像を追加
@@ -64,12 +123,19 @@ class MoviePagingSource(
                             tmpMovieList.add(movie)
                         }
                     }
+                    val prevKey = if (page == 0) null else page - 1
+                    val nextKey = if (titleList.size < page) null else page + 1
+                    if (page >= initPagePosition) {
+                        itemsAfter -= 1
+                    } else {
+                        itemsBefore -= 1
+                    }
                     return@withContext LoadResult.Page(
                         data = tmpMovieList,
-                        prevKey = page - 1,
-                        nextKey = if (page == 20) null else page + 1,
-                        itemsAfter = 0,
-                        itemsBefore = titleList.size -( 21-page ) * params.loadSize,
+                        prevKey = prevKey,
+                        nextKey = nextKey,
+                        itemsAfter = itemsAfter,
+                        itemsBefore = itemsBefore,
                     )
                 }
             }
