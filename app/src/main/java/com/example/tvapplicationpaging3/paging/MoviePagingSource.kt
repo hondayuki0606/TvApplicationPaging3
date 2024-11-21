@@ -109,7 +109,7 @@ class MoviePagingSource(
                     }
 //                    val start = 95 - ((20 - page) * pageSize)
                     val tmpMovieList = mutableListOf<Movie>()
-                    Thread.sleep(300)
+                    Thread.sleep(200)
                     for (i in start until start + pageSize) {
                         if (0 <= i && i < titleList.size) {
                             // 最初の項目にダミー画像を追加

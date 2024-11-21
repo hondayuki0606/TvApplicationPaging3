@@ -30,6 +30,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.leanback.paging.PagingDataAdapter
+import androidx.leanback.widget.ListRowView
 import androidx.leanback.widget.ObjectAdapter
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
@@ -169,6 +170,19 @@ class MainFragment : BrowseSupportFragment() {
             }
         })
         rowsAdapter.add(ListRow(header, movieAdapter))
+        movieAdapter.addLoadStateListener {
+            val size = movieAdapter.size()
+            val list = arrayListOf(size)
+            if (size != 0 && firstLoad) {
+//                firstLoad = false
+                val s = rowsAdapter.get(0)
+                rowsSupportFragment
+//                (rowsSupportFragment.getRowViewHolder(0).view as ListRowView)
+//                (rowsSupportFragment.getRowViewHolder(0).view as ListRowView).gridView.scrollToPosition(
+//                    10
+//                )
+            }
+        }
         lifecycleScope.launch {
             // 最初に仮データを表示
             viewModel.load()
@@ -307,9 +321,9 @@ class MainFragment : BrowseSupportFragment() {
             itemViewHolder: Presenter.ViewHolder?, item: Any?,
             rowViewHolder: RowPresenter.ViewHolder, row: Row
         ) {
-            if (item != null && firstLoad) {
+            if (firstLoad) {
                 firstLoad = false
-//                (rowViewHolder.view as ListRowView).gridView.scrollToPosition(498)
+                (rowViewHolder.view as ListRowView).gridView.scrollToPosition(viewModel.startPosition)
             }
             if (item is Movie) {
                 mBackgroundUri = item.backgroundImageUrl
