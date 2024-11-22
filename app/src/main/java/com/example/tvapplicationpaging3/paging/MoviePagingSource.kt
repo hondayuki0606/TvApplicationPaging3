@@ -105,7 +105,7 @@ class MoviePagingSource(
                     val start = if (page == initPagePosition) {
                         startPosition
                     } else {
-                        page
+                        page * pageSize
                     }
 //                    val start = 95 - ((20 - page) * pageSize)
                     val tmpMovieList = mutableListOf<Movie>()
@@ -124,17 +124,21 @@ class MoviePagingSource(
                         }
                     }
                     val prevKey = if (page == 0) null else page - 1
-                    val nextKey = if (titleList.size < page) null else page + 1
+                    val nextKey = if (titleList.size <= page) null else page + 1
                     if (page >= initPagePosition) {
-                        itemsAfter -= 1
+                        itemsAfter -= pageSize
                     } else {
-                        itemsBefore -= 1
+                        itemsBefore -= pageSize
                     }
+                    Log.d("", "honda prevKey = $prevKey")
+                    Log.d("", "honda nextKey = $nextKey")
+                    Log.d("", "honda itemsAfter = $itemsAfter")
+                    Log.d("", "honda itemsBefore = $itemsBefore")
                     return@withContext LoadResult.Page(
                         data = tmpMovieList,
                         prevKey = prevKey,
                         nextKey = nextKey,
-                        itemsAfter = itemsAfter,
+                        itemsAfter = if (itemsAfter < 0) 0 else itemsAfter,
                         itemsBefore = itemsBefore,
                     )
                 }

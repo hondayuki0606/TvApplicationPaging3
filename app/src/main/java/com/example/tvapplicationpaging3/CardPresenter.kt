@@ -71,6 +71,7 @@ class CardPresenter : Presenter() {
 //        if (movie.cardImageUrl != null) {
 //            cardView.titleText = movie.title
 //            cardView.contentText = movie.studio
+        cardView.titleText = ""
         cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT)
         Glide.with(viewHolder.view.context)
             .load(IMAGE_URL)

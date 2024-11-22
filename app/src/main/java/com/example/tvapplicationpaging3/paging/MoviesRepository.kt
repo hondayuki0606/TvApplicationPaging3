@@ -114,6 +114,6 @@ class MoviesRepository @Inject constructor(
     }
 
     companion object {
-        private const val PAGE_SIZE = 1.0
+        private const val PAGE_SIZE = 2.0
     }
 }
