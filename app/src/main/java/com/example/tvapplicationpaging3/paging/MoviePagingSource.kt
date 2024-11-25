@@ -124,7 +124,7 @@ class MoviePagingSource(
                         }
                     }
                     val prevKey = if (page == 0) null else page - 1
-                    val nextKey = if (titleList.size <= page) null else page + 1
+                    val nextKey = if (titleList.size <= page * pageSize) null else page + 1
                     if (page >= initPagePosition) {
                         itemsAfter -= pageSize
                     } else {
