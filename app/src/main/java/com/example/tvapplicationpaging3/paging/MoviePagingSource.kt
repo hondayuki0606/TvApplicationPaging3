@@ -7,6 +7,7 @@ import com.example.tvapplicationpaging3.Movie
 import com.example.tvapplicationpaging3.api.PostsApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.math.max
 
 class MoviePagingSource(
     private val titleList: Array<Int>,
@@ -24,11 +25,9 @@ class MoviePagingSource(
     }
 
     override fun getRefreshKey(state: PagingState<Int, Movie>): Int? {
-        val position = state.anchorPosition ?: return null
-        val prevKey = state.closestPageToPosition(position)?.prevKey
-        val nextKey = state.closestPageToPosition(position)?.nextKey
-
-        return prevKey?.plus(1) ?: nextKey?.minus(1)
+        return state.anchorPosition?.let { anchorPosition ->
+            anchorPosition / pageSize
+        }
     }
 //
 //    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Movie> {
@@ -89,6 +88,13 @@ class MoviePagingSource(
         val page = params.key
         return try {
             withContext(Dispatchers.IO) {
+                var pagePosition = params.key ?: initPagePosition
+                var loadSize = pageSize
+                if (params is LoadParams.Refresh) {
+                    // make sure everything visible in the view port is updated / loaded
+                    loadSize *= 3
+                    pagePosition = max(0, pagePosition - 1)
+                }
                 if (page == null) {
                     itemsBefore = startPosition
                     itemsAfter = titleList.size - startPosition
@@ -134,13 +140,23 @@ class MoviePagingSource(
                     Log.d("", "honda nextKey = $nextKey")
                     Log.d("", "honda itemsAfter = $itemsAfter")
                     Log.d("", "honda itemsBefore = $itemsBefore")
-                    return@withContext LoadResult.Page(
-                        data = tmpMovieList,
-                        prevKey = prevKey,
-                        nextKey = nextKey,
-                        itemsAfter = if (itemsAfter < 0) 0 else itemsAfter,
-                        itemsBefore = itemsBefore,
-                    )
+
+                    if (params is LoadParams.Refresh) {
+                        return@withContext LoadResult.Page(
+                            itemsBefore = pagePosition * pageSize,
+                            data = tmpMovieList,
+                            prevKey = if (pagePosition == initPagePosition) null else pagePosition - 1,
+                            nextKey = nextKey
+                        )
+                    } else {
+                        return@withContext LoadResult.Page(
+                            data = tmpMovieList,
+                            prevKey = prevKey,
+                            nextKey = nextKey,
+                            itemsAfter = if (itemsAfter < 0) 0 else itemsAfter,
+                            itemsBefore = itemsBefore,
+                        )
+                    }
                 }
             }
         } catch (e: Exception) {

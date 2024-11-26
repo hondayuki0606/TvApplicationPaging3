@@ -1,5 +1,6 @@
 package com.example.tvapplicationpaging3
 
+import android.app.Activity
 import java.util.Timer
 import java.util.TimerTask
 
@@ -28,8 +29,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.viewModels
 import androidx.leanback.paging.PagingDataAdapter
+import androidx.leanback.widget.ImageCardView
 import androidx.leanback.widget.ListRowView
 import androidx.leanback.widget.ObjectAdapter
 import androidx.lifecycle.lifecycleScope
@@ -281,29 +286,19 @@ class MainFragment : BrowseSupportFragment() {
             item: Any?,
             rowViewHolder: RowPresenter.ViewHolder?,
             row: Row?
-        ) {
-//            lifecycleScope.launch {
-//                val movie = movieList.find { it == item }
-//                val index = movieList.indexOf(movie)
-//                movie?.title = "OK"
-//                movieAdapter.notifyItemRangeChanged(index, 1)
-////                viewModel.uiState.value.pagingDataFlow.map { item ->
-////                    if (item.title == "test0 fin") {
-////                        item.title = "OK"
-////                    }
-////                }
-//            }
+        ) {  movieAdapter.refresh()
             if (item is Movie) {
-                Log.d(TAG, "Item: " + item.toString())
-//                val intent = Intent(context!!, DetailsActivity::class.java)
-//                intent.putExtra(DetailsActivity.MOVIE, item)
-//
-//                val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
-//                    activity!!,
-//                    (itemViewHolder.view as ImageCardView).mainImageView,
-//                    DetailsActivity.SHARED_ELEMENT_NAME
-//                )
-//                    .toBundle()
+                Log.d(TAG, "Item: $item")
+                val intent = Intent(context!!, DetailsActivity::class.java)
+                intent.putExtra(DetailsActivity.MOVIE, item)
+
+                val bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    activity!!,
+                    (itemViewHolder?.view as ImageCardView).mainImageView,
+                    DetailsActivity.SHARED_ELEMENT_NAME
+                )
+                    .toBundle()
+                startForResult.launch(intent)
 //                startActivity(intent, bundle)
             } else if (item is String) {
                 if (item.contains(getString(R.string.error_fragment))) {
@@ -316,6 +311,13 @@ class MainFragment : BrowseSupportFragment() {
         }
     }
 
+    val startForResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            movieAdapter.refresh()
+        }
+    }
     private inner class ItemViewSelectedListener : OnItemViewSelectedListener {
         override fun onItemSelected(
             itemViewHolder: Presenter.ViewHolder?, item: Any?,
