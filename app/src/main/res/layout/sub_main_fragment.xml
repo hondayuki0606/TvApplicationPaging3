@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:focusable="true"
     tools:context=".MainActivity">
 
@@ -12,7 +12,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <ImageView
+        android:id="@+id/myImageView"
+        android:layout_width="80dp"
+        android:layout_height="20dp"
+        android:src="@drawable/movie"
+        android:elevation="10dp"
+        android:scaleType="fitXY"
+        android:layout_marginStart="5dp"
+        app:layout_constraintBottom_toTopOf="@id/button"
+        app:layout_constraintTop_toTopOf="@id/button"
+        app:layout_constraintStart_toStartOf="@id/button" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"

@@ -17,9 +17,9 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         if (savedInstanceState == null) {
-            currentFragment = MainFragment()
+            currentFragment = SubMainFragment()
             supportFragmentManager.beginTransaction()
-                .replace(R.id.main_browse_fragment, currentFragment as MainFragment)
+                .replace(R.id.main_browse_fragment, currentFragment as SubMainFragment)
                 .commitNow()
         }
     }
