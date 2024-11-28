@@ -143,7 +143,7 @@ class MoviePagingSource(
 
                     if (params is LoadParams.Refresh) {
                         return@withContext LoadResult.Page(
-                            itemsBefore = pagePosition * pageSize,
+                            itemsAfter = 0,
                             data = tmpMovieList,
                             prevKey = if (pagePosition == initPagePosition) null else pagePosition - 1,
                             nextKey = nextKey
