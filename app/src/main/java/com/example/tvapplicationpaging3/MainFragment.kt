@@ -44,6 +44,7 @@ import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.tvapplicationpaging3.paging.Cheese
 import com.example.tvapplicationpaging3.paging.CheeseListItem
+import com.example.tvapplicationpaging3.paging.MoviePagingSource.Companion.IMAGE_URL
 import com.example.tvapplicationpaging3.paging.PagingSourceViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -199,6 +200,7 @@ class MainFragment : BrowseSupportFragment() {
                     Log.d("", "honda errorMessage = ${state.errorMessage}")
                 }
             }
+            viewModel.fetchMovies2()
 
 //            viewModel.uiState.collectLatest {
 //                movieAdapter.submitData(
@@ -286,8 +288,11 @@ class MainFragment : BrowseSupportFragment() {
             item: Any?,
             rowViewHolder: RowPresenter.ViewHolder?,
             row: Row?
-        ) {  movieAdapter.refresh()
+        ) {
             if (item is Movie) {
+                var movie = movieList.find { it == item }
+                movie?.cardImageUrl = IMAGE_URL
+                viewModel.updateItem(item)
                 Log.d(TAG, "Item: $item")
                 val intent = Intent(context!!, DetailsActivity::class.java)
                 intent.putExtra(DetailsActivity.MOVIE, item)
@@ -315,7 +320,7 @@ class MainFragment : BrowseSupportFragment() {
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
-            movieAdapter.refresh()
+//            movieAdapter.refresh()
         }
     }
     private inner class ItemViewSelectedListener : OnItemViewSelectedListener {
