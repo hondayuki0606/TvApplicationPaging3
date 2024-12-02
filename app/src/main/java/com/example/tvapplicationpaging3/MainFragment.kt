@@ -290,8 +290,8 @@ class MainFragment : BrowseSupportFragment() {
             row: Row?
         ) {
             if (item is Movie) {
-                var movie = movieList.find { it == item }
-                movie?.cardImageUrl = IMAGE_URL
+//                var movie = movieList.find { it == item }
+//                movie?.cardImageUrl = IMAGE_URL
                 viewModel.updateItem(item)
                 Log.d(TAG, "Item: $item")
                 val intent = Intent(context!!, DetailsActivity::class.java)

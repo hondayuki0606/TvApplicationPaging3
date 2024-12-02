@@ -41,6 +41,29 @@ class MoviesRepository @Inject constructor(
     }
 
     // ページャーを取得
+    fun getMovies2(startPosition: Int, intList: Array<Int>): Flow<PagingData<Movie>> {
+        val initPagePosition = calculateInitialKey(startPosition)
+        return Pager(
+            config = PagingConfig(
+                pageSize = PAGE_SIZE.toInt(),
+                prefetchDistance = 10,
+                enablePlaceholders = true,
+                initialLoadSize = PAGE_SIZE.toInt()
+            ),
+            initialKey = null,
+            pagingSourceFactory = {
+                MoviePagingSource(
+                    titleList = intList,
+                    startPosition = startPosition,
+                    initPagePosition = initPagePosition,
+                    pageSize = PAGE_SIZE.toInt(),
+                    postsApi = postsApi
+                )
+            }
+        ).flow
+    }
+
+    // ページャーを取得
     fun getCheeseListItem(
         startPosition: Int,
         intList: Array<Int>
@@ -87,8 +110,7 @@ class MoviesRepository @Inject constructor(
                         } else if (!before.name.first()
                                 .equals(after.name.first(), ignoreCase = true)
                         ) {
-                            Log.d("honda", "honda !before.name.first()\n" +
-                                    "                                .equals(after.name.first(), ignoreCase = true $before, $after")
+                            Log.d("honda", "honda !before.name.first().equals(after.name.first(), ignoreCase = true $before, $after")
                             // Between two items that start with different letters.
                             CheeseListItem.Separator(after.name.first())
                         } else {

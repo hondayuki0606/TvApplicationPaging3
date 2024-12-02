@@ -25,6 +25,12 @@ class MoviePagingSource(
     }
 
     override fun getRefreshKey(state: PagingState<Int, Movie>): Int? {
+        Log.d("", "honda anchorPosition ${state.anchorPosition}")
+        Log.d("", "honda state ${state}")
+        getRefreshFlg = true
+        val anchorPosition = state.anchorPosition ?: return null
+        val article = state.closestItemToPosition(anchorPosition) ?: return null
+        Log.d("", "honda article state ${article}")
         return state.anchorPosition?.let { anchorPosition ->
             anchorPosition / pageSize
         }
@@ -80,7 +86,7 @@ class MoviePagingSource(
 //        }
 //    }
 
-
+    private var getRefreshFlg = false
     private var itemsBefore = 0
     private var itemsAfter = 0
 
@@ -91,6 +97,18 @@ class MoviePagingSource(
                 var pagePosition = params.key ?: initPagePosition
                 var loadSize = pageSize
                 if (params is LoadParams.Refresh) {
+                    if (getRefreshFlg) {
+                        getRefreshFlg = false
+//                        return@withContext LoadResult.Invalid()
+
+                        return@withContext LoadResult.Page(
+                            data = emptyList(),
+                            prevKey = null,
+                            nextKey = null,
+                            itemsBefore = 0,
+                            itemsAfter = 95,
+                        )
+                    }
                     // make sure everything visible in the view port is updated / loaded
                     loadSize *= 3
                     pagePosition = max(0, pagePosition - 1)
@@ -100,7 +118,7 @@ class MoviePagingSource(
                     itemsAfter = titleList.size - startPosition
                     return@withContext LoadResult.Page(
                         data = emptyList(),
-                        prevKey = initPagePosition - 1,
+                        prevKey = if (initPagePosition == 0) null else initPagePosition - 1,
                         nextKey = initPagePosition,
                         itemsBefore = itemsBefore,
                         itemsAfter = itemsAfter,
