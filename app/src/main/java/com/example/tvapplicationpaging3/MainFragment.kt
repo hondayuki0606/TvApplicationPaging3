@@ -290,9 +290,7 @@ class MainFragment : BrowseSupportFragment() {
             row: Row?
         ) {
             if (item is Movie) {
-//                var movie = movieList.find { it == item }
-//                movie?.cardImageUrl = IMAGE_URL
-                viewModel.updateItem(item)
+                viewModel.lastIndex = viewModel.targetIndex(item)
                 Log.d(TAG, "Item: $item")
                 val intent = Intent(context!!, DetailsActivity::class.java)
                 intent.putExtra(DetailsActivity.MOVIE, item)
@@ -320,9 +318,13 @@ class MainFragment : BrowseSupportFragment() {
         ActivityResultContracts.StartActivityForResult()
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
-//            movieAdapter.refresh()
+        }
+        if (viewModel.lastIndex == -1) {
+            viewModel.updateItem(viewModel.lastIndex)
+            movieAdapter.notifyItemRangeChanged(viewModel.lastIndex, 1)
         }
     }
+
     private inner class ItemViewSelectedListener : OnItemViewSelectedListener {
         override fun onItemSelected(
             itemViewHolder: Presenter.ViewHolder?, item: Any?,

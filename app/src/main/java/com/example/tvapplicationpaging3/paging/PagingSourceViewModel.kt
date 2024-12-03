@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.filter
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.example.tvapplicationpaging3.Movie
@@ -15,10 +14,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Collections
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,6 +35,7 @@ class PagingSourceViewModel @Inject constructor(
     val uiState: StateFlow<UiState> = _uiState
     private val intList = Array(100) { it }
     val startPosition = 0
+    var lastIndex: Int = 0
     fun load() {
         // 最初に仮データを設定
         loadFakeData()
@@ -115,7 +115,7 @@ class PagingSourceViewModel @Inject constructor(
                                 Log.d("honda", "honda before == null $before")
                                 // Header
 //                            CheeseListItem.Separator(after.title.first())
-                                after
+                                null
                             } else if (!before.title.first()
                                     .equals(after.title.first(), ignoreCase = true)
                             ) {
@@ -125,7 +125,7 @@ class PagingSourceViewModel @Inject constructor(
                                 )
                                 // Between two items that start with different letters.
 //                            CheeseListItem.Separator(after.title.first())
-                                after
+                                null
                             } else {
                                 Log.d("honda", "honda else ")
                                 // Between two items that start with different letters.
@@ -147,19 +147,13 @@ class PagingSourceViewModel @Inject constructor(
         }
     }
 
-    fun updateItem(item: Movie) {
-        val updateItem = Movie(0, "", "", "", "", "", "")
-        val list = _uiState.value.pagingDataFlow
-        val list2 = _uiState.value.pagingDataFlow.map { }
-        val newList = _localDataList.value.filterNot { it.id == updateItem.id }
-//        _localDataList.update {
-//            i
-//        }
+    fun targetIndex(item: Movie): Int {
+        return localDataList.indexOf(item)
+    }
 
-//        _uiState.value.pagingDataFlow.filter { it.id ==  }
-        val index = localDataList.indexOf(item)
-        val movie = localDataList[index]
-        movie.cardImageUrl = IMAGE_URL
+    fun updateItem(index: Int) {
+        val updateItem = Movie(0, "", "", IMAGE_URL, IMAGE_URL, "", "")
+        localDataList[index] = updateItem
 //            _uiState.update {
 //                it.copy(
 //                    pagingDataFlow = list,
