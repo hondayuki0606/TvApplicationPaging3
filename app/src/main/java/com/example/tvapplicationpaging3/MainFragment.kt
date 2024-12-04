@@ -109,7 +109,7 @@ class MainFragment : BrowseSupportFragment() {
         searchAffordanceColor = ContextCompat.getColor(requireContext(), R.color.search_opaque)
     }
 
-    val cardPresenter = CardPresenter()
+    private val cardPresenter = CardPresenter()
     val movieAdapter: PagingDataAdapter<Movie> = PagingDataAdapter(cardPresenter,
         object : DiffUtil.ItemCallback<Movie>() {
             override fun areItemsTheSame(
@@ -179,21 +179,12 @@ class MainFragment : BrowseSupportFragment() {
         movieAdapter.addLoadStateListener {
             val size = movieAdapter.size()
             val list = arrayListOf(size)
-            if (size != 0 && firstLoad) {
-//                firstLoad = false
-                val s = rowsAdapter.get(0)
-                rowsSupportFragment
-//                (rowsSupportFragment.getRowViewHolder(0).view as ListRowView)
-//                (rowsSupportFragment.getRowViewHolder(0).view as ListRowView).gridView.scrollToPosition(
-//                    10
-//                )
-            }
         }
         lifecycleScope.launch {
             // 最初に仮データを表示
             viewModel.load()
-            viewModel.uiState.collectLatest { state ->
-                Log.d("", "honda state = ${state}")
+            viewModel.middleUiState.collectLatest { state ->
+                Log.d("", "honda state = $state")
                 if (state.isLoading) {
                     movieAdapter.submitData(state.pagingDataFlow)
                 } else {
@@ -319,7 +310,7 @@ class MainFragment : BrowseSupportFragment() {
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
         }
-        if (viewModel.lastIndex == -1) {
+        if (viewModel.lastIndex != -1) {
             viewModel.updateItem(viewModel.lastIndex)
             movieAdapter.notifyItemRangeChanged(viewModel.lastIndex, 1)
         }
@@ -393,12 +384,12 @@ class MainFragment : BrowseSupportFragment() {
     }
 
     companion object {
-        private val TAG = "MainFragment"
+        private const val TAG = "MainFragment"
 
-        private val BACKGROUND_UPDATE_DELAY = 300
-        private val GRID_ITEM_WIDTH = 200
-        private val GRID_ITEM_HEIGHT = 200
-        private val NUM_ROWS = 6
-        private val NUM_COLS = 15
+        private const val BACKGROUND_UPDATE_DELAY = 300
+        private const val GRID_ITEM_WIDTH = 200
+        private const val GRID_ITEM_HEIGHT = 200
+        private const val NUM_ROWS = 6
+        private const val NUM_COLS = 15
     }
 }

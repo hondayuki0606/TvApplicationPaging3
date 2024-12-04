@@ -24,15 +24,15 @@ import javax.inject.Inject
 class PagingSourceViewModel @Inject constructor(
     private val moviesRepository: MoviesRepository
 ) : ViewModel() {
-    data class UiState(
+    data class MiddleUiState(
         val pagingDataFlow: PagingData<Movie> = PagingData.empty(),
         val isLoading: Boolean = false,
         val errorMessage: String? = null
     )
 
     // UiStateを保持するStateFlow
-    private val _uiState = MutableStateFlow(UiState())
-    val uiState: StateFlow<UiState> = _uiState
+    private val _middleUiState = MutableStateFlow(MiddleUiState())
+    val middleUiState: StateFlow<MiddleUiState> = _middleUiState
     private val intList = Array(100) { it }
     val startPosition = 0
     var lastIndex: Int = 0
@@ -136,7 +136,7 @@ class PagingSourceViewModel @Inject constructor(
                 }
             flow.collectLatest { pagingData ->
                 // 実際のデータで更新
-                _uiState.update {
+                _middleUiState.update {
                     it.copy(
                         pagingDataFlow = pagingData,
                         isLoading = true,
@@ -153,7 +153,8 @@ class PagingSourceViewModel @Inject constructor(
 
     fun updateItem(index: Int) {
         val updateItem = Movie(0, "", "", IMAGE_URL, IMAGE_URL, "", "")
-        localDataList[index] = updateItem
+//        localDataList[index] = updateItem
+        localDataList[index].cardImageUrl= IMAGE_URL// = updateItem
 //            _uiState.update {
 //                it.copy(
 //                    pagingDataFlow = list,
