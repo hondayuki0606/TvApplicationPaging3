@@ -1,4 +1,4 @@
-package com.example.tvapplicationpaging3.paging
+package com.example.tvapplicationpaging3.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -8,7 +8,9 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.example.tvapplicationpaging3.Movie
+import com.example.tvapplicationpaging3.paging.CheeseListItem
 import com.example.tvapplicationpaging3.paging.MoviePagingSource.Companion.IMAGE_URL
+import com.example.tvapplicationpaging3.paging.MoviesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +19,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Collections
 import javax.inject.Inject
 
 @HiltViewModel

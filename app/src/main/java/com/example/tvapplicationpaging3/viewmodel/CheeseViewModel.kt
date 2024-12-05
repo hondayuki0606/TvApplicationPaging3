@@ -1,9 +1,13 @@
-package com.example.tvapplicationpaging3.paging
+package com.example.tvapplicationpaging3.viewmodel
 
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.*
+import com.example.tvapplicationpaging3.paging.Cheese
+import com.example.tvapplicationpaging3.paging.CheeseDao
+import com.example.tvapplicationpaging3.paging.CheeseListItem
+import com.example.tvapplicationpaging3.paging.ioThread
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

@@ -13,11 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.tvapplicationpaging3.paging.MovieAdapter
-import com.example.tvapplicationpaging3.paging.PagingSourceViewModel
+import com.example.tvapplicationpaging3.viewmodel.PagingSourceViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**

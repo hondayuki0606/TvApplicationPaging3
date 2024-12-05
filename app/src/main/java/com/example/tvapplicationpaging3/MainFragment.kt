@@ -42,10 +42,8 @@ import androidx.recyclerview.widget.DiffUtil
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
-import com.example.tvapplicationpaging3.paging.Cheese
 import com.example.tvapplicationpaging3.paging.CheeseListItem
-import com.example.tvapplicationpaging3.paging.MoviePagingSource.Companion.IMAGE_URL
-import com.example.tvapplicationpaging3.paging.PagingSourceViewModel
+import com.example.tvapplicationpaging3.viewmodel.PagingSourceViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
