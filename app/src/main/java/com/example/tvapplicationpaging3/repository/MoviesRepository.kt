@@ -1,4 +1,4 @@
-package com.example.tvapplicationpaging3.paging
+package com.example.tvapplicationpaging3.repository
 
 import android.util.Log
 import androidx.paging.Pager
@@ -8,6 +8,9 @@ import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.example.tvapplicationpaging3.Movie
 import com.example.tvapplicationpaging3.api.PostsApi
+import com.example.tvapplicationpaging3.paging.CheeseListItem
+import com.example.tvapplicationpaging3.paging.CheesePagingSource
+import com.example.tvapplicationpaging3.paging.MoviePagingSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

@@ -1,7 +1,7 @@
 package com.example.tvapplicationpaging3.di
 
 import com.example.tvapplicationpaging3.api.PostsApi
-import com.example.tvapplicationpaging3.paging.MoviesRepository
+import com.example.tvapplicationpaging3.repository.MoviesRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
