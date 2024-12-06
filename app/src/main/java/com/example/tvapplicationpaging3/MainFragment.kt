@@ -43,6 +43,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.tvapplicationpaging3.paging.CheeseListItem
+import com.example.tvapplicationpaging3.viewmodel.PagingSourceMediatorViewModel
 import com.example.tvapplicationpaging3.viewmodel.PagingSourceViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -60,7 +61,8 @@ class MainFragment : BrowseSupportFragment() {
     private lateinit var mMetrics: DisplayMetrics
     private var mBackgroundTimer: Timer? = null
     private var mBackgroundUri: String? = null
-    private val viewModel: PagingSourceViewModel by viewModels()
+    private val pagingSourceViewModel: PagingSourceViewModel by viewModels()
+    private val pagingSourceMediatorViewModel: PagingSourceMediatorViewModel by viewModels()
     private var firstLoad = true
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -180,8 +182,20 @@ class MainFragment : BrowseSupportFragment() {
         }
         lifecycleScope.launch {
             // 最初に仮データを表示
-            viewModel.load()
-            viewModel.middleUiState.collectLatest { state ->
+            // DBを使わないpagingはコメントアウト
+//            pagingSourceViewModel.load()
+//            pagingSourceViewModel.middleUiState.collectLatest { state ->
+//                Log.d("", "honda state = $state")
+//                if (state.isLoading) {
+//                    movieAdapter.submitData(state.pagingDataFlow)
+//                } else {
+//                    Log.d("", "honda errorMessage = ${state.errorMessage}")
+//                }
+//            }
+//            pagingSourceViewModel.fetchMovies2()
+
+            pagingSourceMediatorViewModel.load()
+            pagingSourceMediatorViewModel.middleUiState.collectLatest { state ->
                 Log.d("", "honda state = $state")
                 if (state.isLoading) {
                     movieAdapter.submitData(state.pagingDataFlow)
@@ -189,8 +203,8 @@ class MainFragment : BrowseSupportFragment() {
                     Log.d("", "honda errorMessage = ${state.errorMessage}")
                 }
             }
-            viewModel.fetchMovies2()
-
+            pagingSourceMediatorViewModel.fetchMovies2()
+            
 //            viewModel.uiState.collectLatest {
 //                movieAdapter.submitData(
 //                    PagingData.from(
@@ -279,7 +293,9 @@ class MainFragment : BrowseSupportFragment() {
             row: Row?
         ) {
             if (item is Movie) {
-                viewModel.lastIndex = viewModel.targetIndex(item)
+                // DBを使わないViewModelはコメントアウト
+//                pagingSourceViewModel.lastIndex = pagingSourceViewModel.targetIndex(item)
+                pagingSourceMediatorViewModel.lastIndex = pagingSourceMediatorViewModel.targetIndex(item)
                 Log.d(TAG, "Item: $item")
                 val intent = Intent(context!!, DetailsActivity::class.java)
                 intent.putExtra(DetailsActivity.MOVIE, item)
@@ -308,9 +324,14 @@ class MainFragment : BrowseSupportFragment() {
     ) { result: ActivityResult ->
         if (result.resultCode == Activity.RESULT_OK) {
         }
-        if (viewModel.lastIndex != -1) {
-            viewModel.updateItem(viewModel.lastIndex)
-            movieAdapter.notifyItemRangeChanged(viewModel.lastIndex, 1)
+        // DBを使わないViewModelはコメントアウト
+//        if (pagingSourceViewModel.lastIndex != -1) {
+//            pagingSourceViewModel.updateItem(pagingSourceViewModel.lastIndex)
+//            movieAdapter.notifyItemRangeChanged(pagingSourceViewModel.lastIndex, 1)
+//        }
+        if (pagingSourceMediatorViewModel.lastIndex != -1) {
+            pagingSourceMediatorViewModel.updateItem(pagingSourceMediatorViewModel.lastIndex)
+            movieAdapter.notifyItemRangeChanged(pagingSourceMediatorViewModel.lastIndex, 1)
         }
     }
 
@@ -321,7 +342,9 @@ class MainFragment : BrowseSupportFragment() {
         ) {
             if (firstLoad) {
                 firstLoad = false
-                (rowViewHolder.view as ListRowView).gridView.scrollToPosition(viewModel.startPosition)
+                // DBを使わないViewModelはコメントアウト
+//                (rowViewHolder.view as ListRowView).gridView.scrollToPosition(pagingSourceViewModel.startPosition)
+                (rowViewHolder.view as ListRowView).gridView.scrollToPosition(pagingSourceMediatorViewModel.startPosition)
             }
             if (item is Movie) {
                 mBackgroundUri = item.backgroundImageUrl
