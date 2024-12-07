@@ -1,6 +1,7 @@
 package com.example.tvapplicationpaging3.paging
 
 import com.example.tvapplicationpaging3.Movie
+import com.example.tvapplicationpaging3.dao.Cheese
 
 sealed class CheeseListItem(val name: String) {
     data class Item(val cheese: Cheese) : CheeseListItem(cheese.name)

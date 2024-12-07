@@ -3,7 +3,7 @@ package com.example.tvapplicationpaging3.viewmodel
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.tvapplicationpaging3.paging.CheeseDb
+import com.example.tvapplicationpaging3.dao.CheeseDb
 
 class CheeseViewModelFactory(
     private val app: Application

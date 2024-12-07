@@ -1,4 +1,4 @@
-package com.example.tvapplicationpaging3.paging
+package com.example.tvapplicationpaging3.dao
 
 
 import androidx.paging.PagingSource
@@ -11,12 +11,12 @@ import androidx.room.Query
  * Database Access Object for the Cheese database.
  */
 @Dao
-interface CheeseDao {
+interface MovieDao {
     /**
      * Room knows how to return a LivePagedListProvider, from which we can get a LiveData and serve
      * it back to UI via ViewModel.
      */
-    @Query("SELECT * FROM Cheese ORDER BY name COLLATE NOCASE ASC")
+    @Query("SELECT * FROM movie ORDER BY id COLLATE NOCASE ASC")
     fun allCheesesByName(): PagingSource<Int, Cheese>
 
     @Insert

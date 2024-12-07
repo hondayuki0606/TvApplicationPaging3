@@ -1,4 +1,4 @@
-package com.example.tvapplicationpaging3.paging
+package com.example.tvapplicationpaging3.dao
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

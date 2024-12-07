@@ -1,25 +1,26 @@
-package com.example.tvapplicationpaging3.paging
+package com.example.tvapplicationpaging3.dao
 
 
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.room.*
 import android.content.Context
+import com.example.tvapplicationpaging3.paging.ioThread
 
 /**
  * Singleton database object. Note that for a real app, you should probably use a Dependency
  * Injection framework or Service Locator to create the singleton database.
  */
-@Database(entities = [Cheese::class], version = 1)
-abstract class CheeseDb : RoomDatabase() {
-    abstract fun cheeseDao(): CheeseDao
+@Database(entities = [Movie::class], version = 1)
+abstract class MovieDb : RoomDatabase() {
+    abstract fun movieDao(): MovieDao
 
     companion object {
-        private var instance: CheeseDb? = null
+        private var instance: MovieDb? = null
         @Synchronized
-        fun get(context: Context): CheeseDb {
+        fun get(context: Context): MovieDb {
             if (instance == null) {
                 instance = Room.databaseBuilder(context.applicationContext,
-                    CheeseDb::class.java, "CheeseDatabase")
+                    MovieDb::class.java, "MovieDatabase")
                     .addCallback(object : RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             fillInDb(context.applicationContext)
@@ -35,7 +36,7 @@ abstract class CheeseDb : RoomDatabase() {
         private fun fillInDb(context: Context) {
             // inserts in Room are executed on the current thread, so we insert in the background
             ioThread {
-                get(context).cheeseDao().insert(
+                get(context).movieDao().insert(
                     CHEESE_DATA.map { Cheese(id = 0, name = it) })
             }
         }
