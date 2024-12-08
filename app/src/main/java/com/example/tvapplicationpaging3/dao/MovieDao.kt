@@ -5,6 +5,7 @@ import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 
 /**
@@ -12,19 +13,12 @@ import androidx.room.Query
  */
 @Dao
 interface MovieDao {
-    /**
-     * Room knows how to return a LivePagedListProvider, from which we can get a LiveData and serve
-     * it back to UI via ViewModel.
-     */
-    @Query("SELECT * FROM movie ORDER BY id COLLATE NOCASE ASC")
-    fun allCheesesByName(): PagingSource<Int, Cheese>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(users: List<Movie>)
 
-    @Insert
-    fun insert(cheeses: List<Cheese>)
+    @Query("SELECT * FROM movie WHERE description LIKE :query")
+    fun pagingSource(query: String): PagingSource<Int, Movie>
 
-    @Insert
-    fun insert(cheese: Cheese)
-
-    @Delete
-    fun delete(cheese: Cheese)
+    @Query("DELETE FROM movie")
+    suspend fun clearAll()
 }

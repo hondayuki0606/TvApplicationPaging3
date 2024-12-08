@@ -35,10 +35,10 @@ abstract class MovieDb : RoomDatabase() {
          */
         private fun fillInDb(context: Context) {
             // inserts in Room are executed on the current thread, so we insert in the background
-            ioThread {
-                get(context).movieDao().insert(
-                    CHEESE_DATA.map { Cheese(id = 0, name = it) })
-            }
+//            ioThread {
+//                get(context).movieDao().insert(
+//                    CHEESE_DATA.map { Cheese(id = 0, name = it) })
+//            }
         }
     }
 }
