@@ -12,6 +12,7 @@ import com.example.tvapplicationpaging3.Movie
 import com.example.tvapplicationpaging3.api.PostsApi
 import com.example.tvapplicationpaging3.dao.MovieDb
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalPagingApi::class)
 class MovieRemoteMediator(
@@ -21,6 +22,20 @@ class MovieRemoteMediator(
 ) : RemoteMediator<Int, Movie>() {
     val userDao = database.movieDao()
 
+    override suspend fun initialize(): RemoteMediator.InitializeAction {
+        val cacheTimeout = TimeUnit.MILLISECONDS.convert(1, TimeUnit.HOURS)
+        return if (System.currentTimeMillis() - database.lastUpdated() <= cacheTimeout)
+        {
+            // Cached data is up-to-date, so there is no need to re-fetch
+            // from the network.
+            InitializeAction.SKIP_INITIAL_REFRESH
+        } else {
+            // Need to refresh cached data from network; returning
+            // LAUNCH_INITIAL_REFRESH here will also block RemoteMediator's
+            // APPEND and PREPEND from running until REFRESH succeeds.
+            InitializeAction.LAUNCH_INITIAL_REFRESH
+        }
+    }
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     @OptIn(ExperimentalPagingApi::class)
     override suspend fun load(

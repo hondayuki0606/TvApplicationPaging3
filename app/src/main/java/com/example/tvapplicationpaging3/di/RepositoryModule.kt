@@ -1,6 +1,7 @@
 package com.example.tvapplicationpaging3.di
 
 import com.example.tvapplicationpaging3.api.PostsApi
+import com.example.tvapplicationpaging3.repository.MoviesMediatorRepository
 import com.example.tvapplicationpaging3.repository.MoviesRepository
 import dagger.Module
 import dagger.Provides
@@ -13,5 +14,10 @@ object RepositoryModule {
     @Provides
     fun provideMoviesRepository(postsApi: PostsApi): MoviesRepository {
         return MoviesRepository(postsApi)
+    }
+
+    @Provides
+    fun provideMoviesMediatorRepository(postsApi: PostsApi): MoviesMediatorRepository {
+        return MoviesMediatorRepository(postsApi)
     }
 }
