@@ -4,42 +4,45 @@ package com.example.tvapplicationpaging3.dao
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.room.*
 import android.content.Context
-import com.example.tvapplicationpaging3.paging.ioThread
 
 /**
  * Singleton database object. Note that for a real app, you should probably use a Dependency
  * Injection framework or Service Locator to create the singleton database.
  */
 @Database(entities = [Movie::class], version = 1)
-abstract class MovieDb : RoomDatabase() {
+abstract class RoomDb : RoomDatabase() {
     abstract fun movieDao(): MovieDao
+    abstract fun remoteKeyDao(): RemoteKeyDao
+    fun lastUpdated(): Int = 0
 
     companion object {
-        private var instance: MovieDb? = null
+        private var instance: RoomDb? = null
+
         @Synchronized
-        fun get(context: Context): MovieDb {
+        fun get(context: Context): RoomDb {
             if (instance == null) {
-                instance = Room.databaseBuilder(context.applicationContext,
-                    MovieDb::class.java, "MovieDatabase")
+                instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    RoomDb::class.java, "RoomDb"
+                )
                     .addCallback(object : RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
-                            fillInDb(context.applicationContext)
+//                            fillInDb(context.applicationContext)
                         }
                     }).build()
             }
             return instance!!
         }
-
-        /**
-         * fill database with list of cheeses
-         */
-        private fun fillInDb(context: Context) {
-            // inserts in Room are executed on the current thread, so we insert in the background
+//        /**
+//         * fill database with list of cheeses
+//         */
+//        private fun fillInDb(context: Context) {
+//             inserts in Room are executed on the current thread, so we insert in the background
 //            ioThread {
 //                get(context).movieDao().insert(
 //                    CHEESE_DATA.map { Cheese(id = 0, name = it) })
 //            }
-        }
+//        }
     }
 }
 
@@ -173,4 +176,5 @@ private val CHEESE_DATA = arrayListOf(
     "Washed Rind Cheese (Australian)", "Waterloo", "Weichkaese", "Wellington",
     "Wensleydale", "White Stilton", "Whitestone Farmhouse", "Wigmore", "Woodside Cabecou",
     "Xanadu", "Xynotyro", "Yarg Cornish", "Yarra Valley Pyramid", "Yorkshire Blue",
-    "Zamorano", "Zanetti Grana Padano", "Zanetti Parmigiano Reggiano")
+    "Zamorano", "Zanetti Grana Padano", "Zanetti Parmigiano Reggiano"
+)
