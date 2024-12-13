@@ -1,5 +1,6 @@
 package com.example.tvapplicationpaging3.viewmodel
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,7 +11,7 @@ import androidx.paging.map
 import com.example.tvapplicationpaging3.Movie
 import com.example.tvapplicationpaging3.paging.CheeseListItem
 import com.example.tvapplicationpaging3.paging.MoviePagingSource.Companion.IMAGE_URL
-import com.example.tvapplicationpaging3.repository.MoviesRepository
+import com.example.tvapplicationpaging3.repository.MoviesMediatorRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PagingSourceMediatorViewModel @Inject constructor(
-    private val moviesRepository: MoviesRepository
+    private val moviesRepository: MoviesMediatorRepository
 ) : ViewModel() {
     data class MiddleUiState(
         val pagingDataFlow: PagingData<Movie> = PagingData.empty(),
@@ -42,7 +43,7 @@ class PagingSourceMediatorViewModel @Inject constructor(
         loadFakeData()
 
         // 実際のデータを後から取得
-        fetchMovies2()
+//        fetchMovies2()
     }
 
     private fun loadFakeData() {
@@ -50,10 +51,14 @@ class PagingSourceMediatorViewModel @Inject constructor(
     }
 
     private val localDataList = mutableListOf<Movie>()
-    fun fetchMovies2() {
+    fun fetchMovies2(context: Context) {
         viewModelScope.launch {
             // 実際のデータを取得（例えばAPIから）
-            val flow = moviesRepository.getMovies2(startPosition = startPosition, intList = intList)
+            val flow = moviesRepository.getMovies2(
+                startPosition = startPosition,
+                intList = intList,
+                context
+            )
                 .cachedIn(
                     viewModelScope
                 ).map { pagingData ->
@@ -120,7 +125,7 @@ class PagingSourceMediatorViewModel @Inject constructor(
     fun updateItem(index: Int) {
         val updateItem = Movie(0, "", "", IMAGE_URL, IMAGE_URL, "", "")
 //        localDataList[index] = updateItem
-        localDataList[index].cardImageUrl= IMAGE_URL// = updateItem
+        localDataList[index].cardImageUrl = IMAGE_URL// = updateItem
 //            _uiState.update {
 //                it.copy(
 //                    pagingDataFlow = list,

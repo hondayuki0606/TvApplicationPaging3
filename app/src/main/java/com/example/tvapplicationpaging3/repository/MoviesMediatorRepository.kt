@@ -1,16 +1,21 @@
 package com.example.tvapplicationpaging3.repository
 
+import android.content.Context
 import android.util.Log
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.example.tvapplicationpaging3.Movie
 import com.example.tvapplicationpaging3.api.PostsApi
+import com.example.tvapplicationpaging3.dao.RoomDb
 import com.example.tvapplicationpaging3.paging.CheeseListItem
 import com.example.tvapplicationpaging3.paging.CheesePagingSource
 import com.example.tvapplicationpaging3.paging.MoviePagingSource
+import com.example.tvapplicationpaging3.paging.MovieRemoteMediator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -43,27 +48,20 @@ class MoviesMediatorRepository @Inject constructor(
         ).flow
     }
 
-    // ページャーを取得
-    fun getMovies2(startPosition: Int, intList: Array<Int>): Flow<PagingData<Movie>> {
-        val initPagePosition = calculateInitialKey(startPosition)
-        return Pager(
-            config = PagingConfig(
-                pageSize = PAGE_SIZE.toInt(),
-                prefetchDistance = 10,
-                enablePlaceholders = true,
-                initialLoadSize = PAGE_SIZE.toInt()
-            ),
-            initialKey = null,
-            pagingSourceFactory = {
-                MoviePagingSource(
-                    titleList = intList,
-                    startPosition = startPosition,
-                    initPagePosition = initPagePosition,
-                    pageSize = PAGE_SIZE.toInt(),
-                    postsApi = postsApi
-                )
-            }
-        ).flow
+
+    @OptIn(ExperimentalPagingApi::class)
+    fun getMovies2(startPosition: Int, intList: Array<Int>, applicationContext: Context): Flow<PagingData<Movie>> {
+        val database = RoomDb.get(applicationContext)
+        val remoteMediator = MovieRemoteMediator("query", database, postsApi)
+        val userDao = database.movieDao()
+        val pager = Pager(
+            config = PagingConfig(pageSize = 50),
+            remoteMediator = remoteMediator
+        ) {
+            userDao.pagingSource("query")
+        }.flow.cachedIn(viewModelScope)
+
+        return  pager
     }
 
     // ページャーを取得
@@ -113,7 +111,10 @@ class MoviesMediatorRepository @Inject constructor(
                         } else if (!before.name.first()
                                 .equals(after.name.first(), ignoreCase = true)
                         ) {
-                            Log.d("honda", "honda !before.name.first().equals(after.name.first(), ignoreCase = true $before, $after")
+                            Log.d(
+                                "honda",
+                                "honda !before.name.first().equals(after.name.first(), ignoreCase = true $before, $after"
+                            )
                             // Between two items that start with different letters.
                             CheeseListItem.Separator(after.name.first())
                         } else {
