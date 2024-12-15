@@ -43,30 +43,15 @@ class MovieRemoteMediator(
         state: PagingState<Int, Movie>
     ): MediatorResult {
         return try {
-            // The network load method takes an optional String
-            // parameter. For every page after the first, pass the String
-            // token returned from the previous page to let it continue
-            // from where it left off. For REFRESH, pass null to load the
-            // first page.
             val loadKey = when (loadType) {
                 LoadType.REFRESH -> null
-                // In this example, you never need to prepend, since REFRESH
-                // will always load the first page in the list. Immediately
-                // return, reporting end of pagination.
                 LoadType.PREPEND -> return MediatorResult.Success(
                     endOfPaginationReached = true
                 )
-                // Query remoteKeyDao for the next RemoteKey.
                 LoadType.APPEND -> {
                     val remoteKey = database.withTransaction {
                         remoteKeyDao.remoteKeyByQuery(query)
                     }
-
-                    // You must explicitly check if the page key is null when
-                    // appending, since null is only valid for initial load.
-                    // If you receive null for APPEND, that means you have
-                    // reached the end of pagination and there are no more
-                    // items to load.
                     if (remoteKey.nextKey == null) {
                         return MediatorResult.Success(
                             endOfPaginationReached = true
@@ -77,29 +62,17 @@ class MovieRemoteMediator(
                 }
             }
 
-            // Suspending network load via Retrofit. This doesn't need to
-            // be wrapped in a withContext(Dispatcher.IO) { ... } block
-            // since Retrofit's Coroutine CallAdapter dispatches on a
-            // worker thread.
             val response = networkService.getPosts()
 
-            // Store loaded data, and next key in transaction, so that
-            // they're always consistent.
             database.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     remoteKeyDao.deleteByQuery(query)
-//                    userDao.deleteByQuery(query)
                 }
 
-                // Update RemoteKey for this query.
                 remoteKeyDao.insertOrReplace(
                     RemoteKey(query, response.message())
-//                            RemoteKey(query, response.nextKey)
                 )
 
-                // Insert new users into database, which invalidates the
-                // current PagingData, allowing Paging to present the updates
-                // in the DB.
                 val models = mutableListOf(com.example.tvapplicationpaging3.dao.Movie())
                 movieDao.insertAll(models.toList())
             }
