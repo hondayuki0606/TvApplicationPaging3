@@ -55,10 +55,10 @@ class MoviesMediatorRepository @Inject constructor(
     fun getMovies2(
         startPosition: Int,
         intList: Array<Int>,
-        applicationContext: Context,
-        localDataSource: HomeLocalDataSource
-    ): Pager<Int, Movie> {
-        val database = RoomDb.get(applicationContext)
+        localDataSource: HomeLocalDataSource,
+        database:RoomDb
+    ): Pager<Int, com.example.tvapplicationpaging3.dao.Movie> {
+//        val database = RoomDb.get(applicationContext)
         val remoteMediator = MovieRemoteMediator("query", database, postsApi)
         val userDao = database.movieDao()
         return Pager(
@@ -72,34 +72,35 @@ class MoviesMediatorRepository @Inject constructor(
     @SuppressLint("CheckResult")
     class HomeLocalDataSource @Inject constructor(private val db: RoomDb) : ILocalDataSource {
 
-        fun fetchPagedListFromLocal(): PagingSource<Int, Movie> {
-            return db.movieDao().queryEvents()
+        fun fetchPagedListFromLocal(): PagingSource<Int, com.example.tvapplicationpaging3.dao.Movie> {
+            return db.movieDao().allSelect()
         }
 
-        suspend fun clearAndInsertNewData(data: List<Movie>) {
+        suspend fun clearAndInsertNewData(data: List<com.example.tvapplicationpaging3.dao.Movie>) {
             db.withTransaction {
-                db.movieDao().clearReceivedEvents()
+                db.movieDao().clearAll()
                 insertDataInternal(data)
             }
         }
 
-        suspend fun insertNewPagedEventData(newPage: List<Movie>) {
+        suspend fun insertNewPagedEventData(newPage: List<com.example.tvapplicationpaging3.dao.Movie>) {
             db.withTransaction { insertDataInternal(newPage) }
         }
 
         suspend fun fetchNextIndex(): Int {
-            return db.withTransaction {
-                db.movieDao().getNextIndexInReceivedEvents() ?: 0
+            return db.withTransaction {0
+//                db.movieDao().getNextIndexInReceivedEvents() ?: 0
             }
         }
 
-        private suspend fun insertDataInternal(newPage: List<Movie>) {
-            val start = db.movieDao().getNextIndexInReceivedEvents() ?: 0
+        private suspend fun insertDataInternal(newPage: List<com.example.tvapplicationpaging3.dao.Movie>) {
+//            val start = db.movieDao().getNextIndexInReceivedEvents() ?: 0
+            val start = 0
             val items = newPage.mapIndexed { index, child ->
                 child.indexInResponse = start + index
                 child
             }
-            db.movieDao().insert(items)
+            db.movieDao().insertAll(items)
         }
     }
 

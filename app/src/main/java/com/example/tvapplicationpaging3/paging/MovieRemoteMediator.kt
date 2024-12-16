@@ -20,7 +20,7 @@ class MovieRemoteMediator(
     private val query: String,
     private val database: RoomDb,
     private val networkService: PostsApi
-) : RemoteMediator<Int, Movie>() {
+) : RemoteMediator<Int, com.example.tvapplicationpaging3.dao.Movie>() {
     private val movieDao = database.movieDao()
     private val remoteKeyDao = database.remoteKeyDao()
     override suspend fun initialize(): InitializeAction {
@@ -40,7 +40,7 @@ class MovieRemoteMediator(
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     override suspend fun load(
         loadType: LoadType,
-        state: PagingState<Int, Movie>
+        state: PagingState<Int, com.example.tvapplicationpaging3.dao.Movie>
     ): MediatorResult {
         return try {
             val loadKey = when (loadType) {

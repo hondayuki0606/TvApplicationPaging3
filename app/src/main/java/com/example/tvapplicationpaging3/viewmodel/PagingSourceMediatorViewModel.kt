@@ -9,6 +9,7 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.example.tvapplicationpaging3.Movie
+import com.example.tvapplicationpaging3.dao.RoomDb
 import com.example.tvapplicationpaging3.paging.CheeseListItem
 import com.example.tvapplicationpaging3.paging.MoviePagingSource.Companion.IMAGE_URL
 import com.example.tvapplicationpaging3.repository.MoviesMediatorRepository
@@ -53,68 +54,71 @@ class PagingSourceMediatorViewModel @Inject constructor(
     private val localDataList = mutableListOf<Movie>()
     fun fetchMovies2(context: Context) {
         viewModelScope.launch {
+            val database = RoomDb.get(context)
+            val localDataSource = MoviesMediatorRepository.HomeLocalDataSource(database)
             // 実際のデータを取得（例えばAPIから）
             val flow = moviesRepository.getMovies2(
                 startPosition = startPosition,
                 intList = intList,
-                context
+                localDataSource = localDataSource,
+                database = database
             )
-                .cachedIn(
-                    viewModelScope
-                ).map { pagingData ->
-                    pagingData
-                        // Map cheeses to common UI model.
-                        .map { movie ->
-                            Log.d("honda", "honda $movie")
-                            // movieをlocalDataListにaddする
-                            localDataList.add(movie)
-                            movie
-                        }
-                        .insertSeparators { before: Movie?, after: Movie? ->
-                            if (before == null && after == null) {
-                                Log.d(
-                                    "honda",
-                                    "honda before == null && after == null $before, $after"
-                                )
-                                // List is empty after fully loaded; return null to skip adding separator.
-                                null
-                            } else if (after == null) {
-                                Log.d("honda", "honda after == null $after")
-                                // Footer; return null here to skip adding a footer.
-                                null
-                            } else if (before == null) {
-                                Log.d("honda", "honda before == null $before")
-                                // Header
-//                            CheeseListItem.Separator(after.title.first())
-                                null
-                            } else if (!before.title.first()
-                                    .equals(after.title.first(), ignoreCase = true)
-                            ) {
-                                Log.d(
-                                    "honda",
-                                    "honda !before.name.first().equals(after.name.first(), ignoreCase = true $before, $after"
-                                )
-                                // Between two items that start with different letters.
-//                            CheeseListItem.Separator(after.title.first())
-                                null
-                            } else {
-                                Log.d("honda", "honda else ")
-                                // Between two items that start with different letters.
-                                // Between two items that start with the same letter.
-                                null
-                            }
-                        }
-                }
-            flow.collectLatest { pagingData ->
-                // 実際のデータで更新
-                _middleUiState.update {
-                    it.copy(
-                        pagingDataFlow = pagingData,
-                        isLoading = true,
-                        errorMessage = null
-                    )
-                }
-            }
+//                .cachedIn(
+//                    viewModelScope
+//                ).map { pagingData ->
+//                    pagingData
+//                        // Map cheeses to common UI model.
+//                        .map { movie ->
+//                            Log.d("honda", "honda $movie")
+//                            // movieをlocalDataListにaddする
+//                            localDataList.add(movie)
+//                            movie
+//                        }
+//                        .insertSeparators { before: Movie?, after: Movie? ->
+//                            if (before == null && after == null) {
+//                                Log.d(
+//                                    "honda",
+//                                    "honda before == null && after == null $before, $after"
+//                                )
+//                                // List is empty after fully loaded; return null to skip adding separator.
+//                                null
+//                            } else if (after == null) {
+//                                Log.d("honda", "honda after == null $after")
+//                                // Footer; return null here to skip adding a footer.
+//                                null
+//                            } else if (before == null) {
+//                                Log.d("honda", "honda before == null $before")
+//                                // Header
+////                            CheeseListItem.Separator(after.title.first())
+//                                null
+//                            } else if (!before.title.first()
+//                                    .equals(after.title.first(), ignoreCase = true)
+//                            ) {
+//                                Log.d(
+//                                    "honda",
+//                                    "honda !before.name.first().equals(after.name.first(), ignoreCase = true $before, $after"
+//                                )
+//                                // Between two items that start with different letters.
+////                            CheeseListItem.Separator(after.title.first())
+//                                null
+//                            } else {
+//                                Log.d("honda", "honda else ")
+//                                // Between two items that start with different letters.
+//                                // Between two items that start with the same letter.
+//                                null
+//                            }
+//                        }
+//                }
+//            flow.collectLatest { pagingData ->
+//                // 実際のデータで更新
+//                _middleUiState.update {
+//                    it.copy(
+//                        pagingDataFlow = pagingData,
+//                        isLoading = true,
+//                        errorMessage = null
+//                    )
+//                }
+//            }
         }
     }
 
