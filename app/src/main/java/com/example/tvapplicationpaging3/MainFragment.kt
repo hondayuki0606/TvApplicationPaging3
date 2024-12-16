@@ -203,7 +203,7 @@ class MainFragment : BrowseSupportFragment() {
                     Log.d("", "honda errorMessage = ${state.errorMessage}")
                 }
             }
-            pagingSourceMediatorViewModel.fetchMovies2()
+            pagingSourceMediatorViewModel.fetchMovies2(requireContext())
             
 //            viewModel.uiState.collectLatest {
 //                movieAdapter.submitData(
