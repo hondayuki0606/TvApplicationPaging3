@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
@@ -63,6 +64,8 @@ class PagingSourceMediatorViewModel @Inject constructor(
                 localDataSource = localDataSource,
                 database = database
             )
+            Log.d("honda flow", "$flow")
+        }
 //                .cachedIn(
 //                    viewModelScope
 //                ).map { pagingData ->
@@ -119,7 +122,6 @@ class PagingSourceMediatorViewModel @Inject constructor(
 //                    )
 //                }
 //            }
-        }
     }
 
     fun targetIndex(item: Movie): Int {

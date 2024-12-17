@@ -195,14 +195,14 @@ class MainFragment : BrowseSupportFragment() {
 //            pagingSourceViewModel.fetchMovies2()
 
             pagingSourceMediatorViewModel.load()
-            pagingSourceMediatorViewModel.middleUiState.collectLatest { state ->
-                Log.d("", "honda state = $state")
-                if (state.isLoading) {
-                    movieAdapter.submitData(state.pagingDataFlow)
-                } else {
-                    Log.d("", "honda errorMessage = ${state.errorMessage}")
-                }
-            }
+//            pagingSourceMediatorViewModel.middleUiState.collectLatest { state ->
+//                Log.d("", "honda state = $state")
+//                if (state.isLoading) {
+//                    movieAdapter.submitData(state.pagingDataFlow)
+//                } else {
+//                    Log.d("", "honda errorMessage = ${state.errorMessage}")
+//                }
+//            }
             pagingSourceMediatorViewModel.fetchMovies2(requireContext())
             
 //            viewModel.uiState.collectLatest {
