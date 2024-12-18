@@ -39,14 +39,16 @@ import androidx.leanback.widget.ListRowView
 import androidx.leanback.widget.ObjectAdapter
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
+import androidx.room.Room
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
+import com.example.tvapplicationpaging3.dao.RoomDb
 import com.example.tvapplicationpaging3.paging.CheeseListItem
 import com.example.tvapplicationpaging3.viewmodel.PagingSourceMediatorViewModel
 import com.example.tvapplicationpaging3.viewmodel.PagingSourceViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /**
@@ -203,8 +205,12 @@ class MainFragment : BrowseSupportFragment() {
 //                    Log.d("", "honda errorMessage = ${state.errorMessage}")
 //                }
 //            }
-            pagingSourceMediatorViewModel.fetchMovies2(requireContext())
-            
+            lifecycleScope.launch() {
+                val db =pagingSourceMediatorViewModel.getDb(requireContext())
+//            val db = RoomDb.get(requireContext())
+                pagingSourceMediatorViewModel.fetchMovies2(requireContext(), db)
+            }
+
 //            viewModel.uiState.collectLatest {
 //                movieAdapter.submitData(
 //                    PagingData.from(
@@ -295,7 +301,8 @@ class MainFragment : BrowseSupportFragment() {
             if (item is Movie) {
                 // DBを使わないViewModelはコメントアウト
 //                pagingSourceViewModel.lastIndex = pagingSourceViewModel.targetIndex(item)
-                pagingSourceMediatorViewModel.lastIndex = pagingSourceMediatorViewModel.targetIndex(item)
+                pagingSourceMediatorViewModel.lastIndex =
+                    pagingSourceMediatorViewModel.targetIndex(item)
                 Log.d(TAG, "Item: $item")
                 val intent = Intent(context!!, DetailsActivity::class.java)
                 intent.putExtra(DetailsActivity.MOVIE, item)
@@ -344,7 +351,9 @@ class MainFragment : BrowseSupportFragment() {
                 firstLoad = false
                 // DBを使わないViewModelはコメントアウト
 //                (rowViewHolder.view as ListRowView).gridView.scrollToPosition(pagingSourceViewModel.startPosition)
-                (rowViewHolder.view as ListRowView).gridView.scrollToPosition(pagingSourceMediatorViewModel.startPosition)
+                (rowViewHolder.view as ListRowView).gridView.scrollToPosition(
+                    pagingSourceMediatorViewModel.startPosition
+                )
             }
             if (item is Movie) {
                 mBackgroundUri = item.backgroundImageUrl
